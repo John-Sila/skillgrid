@@ -1,0 +1,6 @@
+{
+  "name": "Remix: SkillGrid Elite",
+  "description": "A high-precision, premium home services marketplace featuring elite specialist discovery, real-time booking management, and advanced account analytics with a luxury aesthetic.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": []
+}

@@ -1,0 +1,178 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Base user profile representing either a client or a specialist.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["client", "provider"] },
+        "image": { "type": "string" },
+        "gender": { "type": "string" },
+        "interests": { "type": "array", "items": { "type": "string" } },
+        "locationCoords": { 
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" }
+          }
+        },
+        "rating": { "type": "number" },
+        "reviews": { "type": "number" },
+        "location": { "type": "string" },
+        "reliability": { "type": "number" },
+        "flaggedCount": { "type": "number" },
+        "category": { "type": "string" },
+        "tier": { "type": "string" },
+        "bio": { "type": "string" },
+        "verified": { "type": "boolean" },
+        "joined": { "type": "string" },
+        "isAvailable": { "type": "boolean" }
+      },
+      "required": ["uid", "name", "role"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Direct message between users.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "read": { "type": "boolean" }
+      },
+      "required": ["senderId", "receiverId", "text", "timestamp"]
+    },
+    "Waitlist": {
+      "title": "Waitlist Entry",
+      "description": "Represents a user on a specialist's waitlist.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "clientId": { "type": "string" },
+        "providerId": { "type": "string" },
+        "tier": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["active", "promoted", "cancelled"] }
+      },
+      "required": ["clientId", "providerId", "tier", "timestamp", "status"]
+    },
+    "Booking": {
+      "title": "Booking Transaction",
+      "description": "Represents a service booking between a client and a specialist.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "providerId": { "type": "string" },
+        "clientId": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "time": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "in_progress", "completed", "paid", "closed", "cancelled", "disputed"] },
+        "price": { "type": "number" },
+        "paymentScheduled": { "type": "boolean" },
+        "completionTimestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["providerId", "clientId", "date", "time", "status"]
+    },
+    "Invoice": {
+      "title": "Electronic Invoice",
+      "description": "Financial document generated upon task completion.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "bookingId": { "type": "string" },
+        "providerId": { "type": "string" },
+        "clientId": { "type": "string" },
+        "amount": { "type": "number" },
+        "platformFee": { "type": "number" },
+        "total": { "type": "number" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["sent", "approved", "disputed", "paid"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "providerName": { "type": "string" },
+        "clientName": { "type": "string" }
+      },
+      "required": ["bookingId", "providerId", "clientId", "amount", "status"]
+    },
+    "Transaction": {
+      "title": "Payment Transaction",
+      "description": "Log of financial exchange between client and provider.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "invoiceId": { "type": "string" },
+        "bookingId": { "type": "string" },
+        "amount": { "type": "number" },
+        "transactionId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" }
+      },
+      "required": ["invoiceId", "bookingId", "amount", "transactionId", "timestamp", "status"]
+    },
+    "Notification": {
+      "title": "System Notification",
+      "description": "In-app alerts for workflow stages.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string" },
+        "read": { "type": "boolean" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "data": { "type": "object" }
+      },
+      "required": ["userId", "title", "message", "timestamp"]
+    },
+    "BlockedDate": {
+      "title": "Manual Availability Block",
+      "description": "A date manually blocked by a provider.",
+      "type": "object",
+      "properties": {
+        "providerId": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["providerId", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Service bookings"
+    },
+    "/invoices/{invoiceId}": {
+      "schema": "Invoice",
+      "description": "Generated e-invoices"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Payment logs"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "In-app alerts"
+    },
+    "/blockedDates/{blockId}": {
+      "schema": "BlockedDate",
+      "description": "Provider availability blocks"
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Direct communication logs"
+    },
+    "/waitlist/{entryId}": {
+      "schema": "Waitlist",
+      "description": "Service waitlist entries"
+    }
+  }
+}

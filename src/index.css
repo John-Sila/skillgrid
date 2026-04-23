@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  
+  /* Light Mode Defaults */
+  --color-bg: #F1F5F9;
+  --color-sidebar: #FFFFFF;
+  --color-primary-blue: #0284C7; 
+  --color-text-main: #0F172A;
+  --color-text-light: #475569;
+  --color-card-bg: #FFFFFF;
+  --color-border-slate: #CBD5E1;
+  --color-accent-green: #059669;
+  --color-accent-purple: #7C3AED;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    min-height: 100vh;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  .dark {
+    --color-bg: #020617;
+    --color-sidebar: #0F172A;
+    --color-primary-blue: #38BDF8;
+    --color-text-main: #F8FAFC;
+    --color-text-light: #94A3B8;
+    --color-card-bg: rgba(255, 255, 255, 0.02);
+    --color-border-slate: rgba(255, 255, 255, 0.08);
+  }
+
+  .dark body {
+    background: 
+      radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(5, 150, 105, 0.08) 0%, transparent 40%),
+      #020617;
+  }
+}

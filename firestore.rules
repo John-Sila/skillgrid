@@ -1,0 +1,162 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Global Deny ---
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function emailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Entity Validations ---
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'role']) 
+        && data.uid is string && data.uid.size() <= 128
+        && data.role in ['client', 'provider']
+        && (data.get('email', '') is string)
+        && (data.get('name', 'User') is string && data.get('name', 'User').size() <= 100)
+        && (data.get('bio', '').size() <= 1000)
+        && (data.get('gender', '') is string)
+        && (data.get('interests', []) is list)
+        && (data.get('locationCoords', null) == null || (data.locationCoords.latitude is number && data.locationCoords.longitude is number));
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['senderId', 'receiverId', 'text', 'timestamp'])
+        && data.senderId is string && data.receiverId is string
+        && data.text is string && data.text.size() <= 2000;
+    }
+
+    function isValidWaitlist(data) {
+      return data.keys().hasAll(['clientId', 'providerId', 'tier', 'timestamp', 'status'])
+        && data.clientId is string && data.providerId is string
+        && data.status in ['active', 'promoted', 'cancelled'];
+    }
+
+    function isValidBooking(data) {
+      return data.keys().hasAll(['providerId', 'clientId', 'date', 'time', 'status', 'price'])
+        && data.providerId is string && data.clientId is string
+        && data.status in ['pending', 'confirmed', 'in_progress', 'completed', 'paid', 'closed', 'cancelled', 'disputed']
+        && data.price is number && data.price >= 0;
+    }
+
+    function isValidInvoice(data) {
+      return data.keys().hasAll(['bookingId', 'providerId', 'clientId', 'amount', 'status'])
+        && data.bookingId is string && data.providerId is string && data.clientId is string
+        && data.amount is number && data.status in ['sent', 'approved', 'disputed', 'paid'];
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['invoiceId', 'bookingId', 'amount', 'status', 'timestamp', 'transactionId'])
+        && data.invoiceId is string && data.bookingId is string && data.amount is number;
+    }
+
+    function isValidNotification(data) {
+      return data.keys().hasAll(['userId', 'title', 'message', 'timestamp'])
+        && data.userId is string && data.title is string;
+    }
+
+    function isValidBlock(data) {
+      return data.keys().hasAll(['providerId', 'date'])
+        && data.providerId is string && data.date is string;
+    }
+
+    // --- Collection Routes ---
+
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isOwner(userId) && isValidUser(incoming()) && incoming().uid == request.auth.uid && emailVerified();
+      allow update: if isOwner(userId) && isValidUser(incoming()) && emailVerified() && (
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'name', 'image', 'location', 'bio', 'isAvailable', 'interests', 
+          'gender', 'locationCoords', 'isAwaitingVerification', 'joined', 
+          'verified', 'rating', 'reviews', 'reliability', 'flaggedCount',
+          'category', 'tier', 'services', 'pricePerHour', 'portfolioUrl', 
+          'isCatalogComplete', 'updatedAt', 'email', 'createdAt'
+        ])
+      );
+    }
+
+    match /messages/{messageId} {
+      allow list: if isSignedIn() && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
+      allow create: if isSignedIn() && emailVerified() && isOwner(incoming().senderId) && isValidMessage(incoming());
+    }
+
+    match /waitlist/{entryId} {
+      allow list: if isSignedIn() && (resource.data.clientId == request.auth.uid || resource.data.providerId == request.auth.uid);
+      allow get: if isSignedIn() && (isOwner(existing().clientId) || isOwner(existing().providerId));
+      allow create: if isSignedIn() && emailVerified() && isOwner(incoming().clientId) && isValidWaitlist(incoming());
+      allow update: if isSignedIn() && emailVerified() && (isOwner(existing().clientId) || isOwner(existing().providerId)) && isValidWaitlist(incoming());
+      allow delete: if isSignedIn() && (isOwner(existing().clientId) || isOwner(existing().providerId));
+    }
+
+    match /bookings/{bookingId} {
+      allow get: if isSignedIn() && (isOwner(existing().clientId) || isOwner(existing().providerId));
+      allow list: if isSignedIn() && (resource.data.clientId == request.auth.uid || resource.data.providerId == request.auth.uid);
+      allow create: if isSignedIn() && emailVerified()
+        && isOwner(incoming().clientId) 
+        && isValidBooking(incoming())
+        && exists(/databases/$(database)/documents/users/$(incoming().providerId));
+      
+      allow update: if isSignedIn() && emailVerified() && isValidBooking(incoming()) && (
+        // Client can cancel or approve
+        (isOwner(existing().clientId) && incoming().status in ['cancelled', 'paid', 'closed', 'disputed']) ||
+        // Provider can confirm, start, or complete
+        (isOwner(existing().providerId) && incoming().status in ['confirmed', 'in_progress', 'completed'])
+      );
+    }
+
+    match /invoices/{invoiceId} {
+      allow get, list: if isSignedIn() && (resource.data.clientId == request.auth.uid || resource.data.providerId == request.auth.uid);
+      allow create: if isSignedIn() && isOwner(incoming().providerId) && isValidInvoice(incoming());
+      allow update: if isSignedIn() && (isOwner(existing().clientId) || isOwner(existing().providerId)) && isValidInvoice(incoming());
+    }
+
+    match /transactions/{transactionId} {
+      allow get, list: if isSignedIn() && (resource.data.clientId == request.auth.uid || resource.data.providerId == request.auth.uid);
+      // Transactions should ideally be created by a secure backend trigger, but for this simulation, 
+      // we ensure the user is at least one of the parties.
+      allow create: if isSignedIn() && (incoming().clientId == request.auth.uid || incoming().providerId == request.auth.uid);
+    }
+
+    match /notifications/{notificationId} {
+      allow get, list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      // Notifications are system-driven for this app
+      allow create: if isSignedIn() && isValidNotification(incoming()) && (incoming().userId == request.auth.uid || incoming().get('type', '') == 'invoice_sent');
+      allow update: if isSignedIn() && isOwner(existing().userId) && incoming().diff(existing()).affectedKeys().hasOnly(['read']);
+    }
+
+    match /blockedDates/{blockId} {
+      allow get: if true; // Publicly visible for availability check
+      allow list: if true;
+      allow create: if isSignedIn() && isOwner(incoming().providerId) && isValidBlock(incoming());
+      allow delete: if isSignedIn() && isOwner(existing().providerId);
+    }
+  }
+}
