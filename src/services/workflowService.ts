@@ -1,52 +1,46 @@
-import { doc, updateDoc, addDoc, collection, serverTimestamp, getDoc, query, where, getDocs, orderBy, onSnapshot, writeBatch } from "firebase/firestore";
-import { db, auth } from "../firebase-config";
+import { doc, serverTimestamp, collection, writeBatch, getDoc } from "firebase/firestore";
+import { db } from "../firebase-config";
 import { type Booking, type Invoice } from "../App";
+import { invoiceService } from "./invoiceService";
+import { paymentService } from "./paymentService";
 
 export const workflowService = {
-  // 1. Task Completion Trigger
+  // 1. Task Completion Trigger (Atomic)
   markTaskCompleted: async (booking: Booking, providerName: string, clientName: string) => {
-    if (booking.status !== 'in_progress') {
+    // Idempotency: Check current status from DB to prevent duplicate processing
+    const bookingRef = doc(db, 'bookings', booking.id);
+    const snap = await getDoc(bookingRef);
+    if (!snap.exists()) throw new Error("Task not found");
+    const currentBooking = snap.data() as Booking;
+    
+    if (currentBooking.status === 'completed' || currentBooking.status === 'paid' || currentBooking.status === 'closed') {
+      console.warn("Task already completed or finalized.");
+      return null;
+    }
+
+    if (currentBooking.status !== 'in_progress') {
       throw new Error("Task must be 'In Progress' to be completed.");
     }
 
     const batch = writeBatch(db);
-    const bookingRef = doc(db, 'bookings', booking.id);
 
-    // Update Booking
+    // Update Booking status
     batch.update(bookingRef, {
       status: 'completed',
       completionTimestamp: serverTimestamp()
     });
 
-    // 2. Automatic E-Invoice Generation
-    const feePercent = 10;
-    const platformFee = (booking.price * feePercent) / 100;
-    const total = booking.price + platformFee;
-
-    const invoiceId = `INV-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    // 2. Generate E-Invoice
+    const invoiceData = invoiceService.createInvoiceData(booking, providerName, clientName);
     const invoiceRef = doc(collection(db, 'invoices'));
-    
-    batch.set(invoiceRef, {
-      bookingId: booking.id,
-      providerId: booking.providerId,
-      clientId: booking.clientId,
-      amount: booking.price,
-      platformFee: platformFee,
-      total: total,
-      description: `${booking.category} Service Deployment - ${booking.time}`,
-      status: 'sent',
-      timestamp: serverTimestamp(),
-      providerName: providerName,
-      clientName: clientName,
-      invoiceId: invoiceId
-    });
+    batch.set(invoiceRef, invoiceData);
 
     // 3. Invoice Delivery Notifications
     const clientNotifRef = doc(collection(db, 'notifications'));
     batch.set(clientNotifRef, {
       userId: booking.clientId,
       title: "Invoice Generated",
-      message: `Operational invoice for ${booking.category} is ready for approval. Total: Ksh ${total.toLocaleString()}`,
+      message: `Operational invoice for ${booking.category} is ready for approval. Total: Ksh ${invoiceData.total.toLocaleString()}`,
       type: 'invoice_sent',
       read: false,
       timestamp: serverTimestamp(),
@@ -68,31 +62,43 @@ export const workflowService = {
     return invoiceRef.id;
   },
 
-  // 4. Client Approval Flow
+  // 4. Client Approval & Payment Flow (Atomic)
   approveInvoice: async (invoice: Invoice, bookingId: string) => {
-    if (invoice.status !== 'sent') return;
-
-    const batch = writeBatch(db);
+    // Idempotency check
     const invoiceRef = doc(db, 'invoices', invoice.id);
     const bookingRef = doc(db, 'bookings', bookingId);
+    
+    const [invSnap, bookSnap] = await Promise.all([
+      getDoc(invoiceRef),
+      getDoc(bookingRef)
+    ]);
+
+    if (!invSnap.exists() || !bookSnap.exists()) throw new Error("Invoice or Booking not found");
+    const currentInvoice = invSnap.data() as Invoice;
+    
+    if (currentInvoice.status === 'approved' || currentInvoice.status === 'paid') {
+      console.warn("Invoice already approved or paid.");
+      return null;
+    }
+
+    if (currentInvoice.status !== 'sent') return null;
+
+    const batch = writeBatch(db);
 
     // Update Invoice & Booking
     batch.update(invoiceRef, { status: 'approved' });
     batch.update(bookingRef, { status: 'paid' });
 
-    // 5. Automated Payment Execution (Simulation)
-    const transactionId = `TXN-${Math.random().toString(36).substr(2, 12).toUpperCase()}`;
+    // 5. Automated Payment Execution
+    const transactionData = paymentService.createTransactionData(
+      invoice.id, 
+      bookingId, 
+      invoice.total, 
+      invoice.clientId, 
+      invoice.providerId
+    );
     const txnRef = doc(collection(db, 'transactions'));
-    batch.set(txnRef, {
-      invoiceId: invoice.id,
-      bookingId: bookingId,
-      amount: invoice.total,
-      transactionId: transactionId,
-      timestamp: serverTimestamp(),
-      status: 'success',
-      clientId: invoice.clientId,
-      providerId: invoice.providerId
-    });
+    batch.set(txnRef, transactionData);
 
     // Notify Provider
     const provNotifRef = doc(collection(db, 'notifications'));
@@ -103,25 +109,27 @@ export const workflowService = {
       type: 'payment_received',
       read: false,
       timestamp: serverTimestamp(),
-      data: { bookingId, transactionId }
+      data: { bookingId, transactionId: transactionData.transactionId }
     });
 
     // 6. Schedule Closure
     batch.update(bookingRef, { status: 'closed' });
 
     await batch.commit();
-    return transactionId;
+    return transactionData.transactionId;
   },
 
   disputeInvoice: async (invoiceId: string, bookingId: string, userId: string, providerId: string) => {
+    const batch = writeBatch(db);
     const invoiceRef = doc(db, 'invoices', invoiceId);
     const bookingRef = doc(db, 'bookings', bookingId);
 
-    await updateDoc(invoiceRef, { status: 'disputed' });
-    await updateDoc(bookingRef, { status: 'disputed' });
+    batch.update(invoiceRef, { status: 'disputed' });
+    batch.update(bookingRef, { status: 'disputed' });
 
     // Notify Provider
-    await addDoc(collection(db, 'notifications'), {
+    const notifRef = doc(collection(db, 'notifications'));
+    batch.set(notifRef, {
       userId: providerId,
       title: "Dispute Flagged",
       message: `The client has raised a dispute regarding the recent deployment. Operational review pending.`,
@@ -130,5 +138,7 @@ export const workflowService = {
       timestamp: serverTimestamp(),
       data: { bookingId, invoiceId }
     });
+
+    await batch.commit();
   }
 };

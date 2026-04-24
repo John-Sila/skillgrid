@@ -38,47 +38,59 @@ service cloud.firestore {
       return data.keys().hasAll(['uid', 'role']) 
         && data.uid is string && data.uid.size() <= 128
         && data.role in ['client', 'provider']
-        && (data.get('email', '') is string)
-        && (data.get('name', 'User') is string && data.get('name', 'User').size() <= 100)
-        && (data.get('bio', '').size() <= 1000)
-        && (data.get('gender', '') is string)
-        && (data.get('interests', []) is list)
+        && (data.get('email', '') is string && data.get('email', '').size() <= 255)
+        && (data.get('name', 'User') is string && data.get('name', 'User').size() >= 2 && data.get('name', 'User').size() <= 100)
+        && (data.get('phone', '') is string && data.get('phone', '').size() <= 20)
+        && (data.get('bio', '') is string && data.get('bio', '').size() <= 1000)
+        && (data.get('gender', '') is string && data.get('gender', '').size() <= 20)
+        && (data.get('interests', []) is list && data.get('interests', []).size() <= 50)
         && (data.get('locationCoords', null) == null || (data.locationCoords.latitude is number && data.locationCoords.longitude is number));
     }
 
     function isValidMessage(data) {
       return data.keys().hasAll(['senderId', 'receiverId', 'text', 'timestamp'])
         && data.senderId is string && data.receiverId is string
-        && data.text is string && data.text.size() <= 2000;
+        && data.text is string && data.text.size() > 0 && data.text.size() <= 2000
+        && data.timestamp is timestamp;
     }
 
     function isValidWaitlist(data) {
       return data.keys().hasAll(['clientId', 'providerId', 'tier', 'timestamp', 'status'])
         && data.clientId is string && data.providerId is string
-        && data.status in ['active', 'promoted', 'cancelled'];
+        && data.tier in ['Basic', 'Premium', 'Luxury']
+        && data.status in ['active', 'promoted', 'cancelled']
+        && data.timestamp is timestamp;
     }
 
     function isValidBooking(data) {
       return data.keys().hasAll(['providerId', 'clientId', 'date', 'time', 'status', 'price'])
         && data.providerId is string && data.clientId is string
         && data.status in ['pending', 'confirmed', 'in_progress', 'completed', 'paid', 'closed', 'cancelled', 'disputed']
-        && data.price is number && data.price >= 0;
+        && data.price is number && data.price >= 0 && data.price <= 1000000
+        && data.time is string && data.time.size() <= 50;
     }
 
     function isValidInvoice(data) {
-      return data.keys().hasAll(['bookingId', 'providerId', 'clientId', 'amount', 'status'])
+      return data.keys().hasAll(['bookingId', 'providerId', 'clientId', 'amount', 'status', 'total'])
         && data.bookingId is string && data.providerId is string && data.clientId is string
-        && data.amount is number && data.status in ['sent', 'approved', 'disputed', 'paid'];
+        && data.amount is number && data.amount >= 0
+        && data.total is number && data.total >= data.amount
+        && data.status in ['sent', 'approved', 'disputed', 'paid'];
     }
 
     function isValidTransaction(data) {
-      return data.keys().hasAll(['invoiceId', 'bookingId', 'amount', 'status', 'timestamp', 'transactionId'])
-        && data.invoiceId is string && data.bookingId is string && data.amount is number;
+      return data.keys().hasAll(['invoiceId', 'bookingId', 'amount', 'status', 'timestamp', 'transactionId', 'clientId', 'providerId'])
+        && data.invoiceId is string && data.bookingId is string 
+        && data.amount is number && data.amount > 0
+        && data.transactionId is string && data.transactionId.size() <= 128
+        && data.clientId is string && data.providerId is string;
     }
 
     function isValidNotification(data) {
-      return data.keys().hasAll(['userId', 'title', 'message', 'timestamp'])
-        && data.userId is string && data.title is string;
+      return data.keys().hasAll(['userId', 'title', 'message', 'timestamp', 'type'])
+        && data.userId is string && data.title is string && data.title.size() <= 255
+        && data.message is string && data.message.size() <= 1000
+        && data.type is string && data.timestamp is timestamp;
     }
 
     function isValidBlock(data) {
@@ -96,7 +108,6 @@ service cloud.firestore {
         incoming().diff(existing()).affectedKeys().hasOnly([
           'name', 'image', 'location', 'bio', 'isAvailable', 'interests', 
           'gender', 'locationCoords', 'isAwaitingVerification', 'joined', 
-          'verified', 'rating', 'reviews', 'reliability', 'flaggedCount',
           'category', 'tier', 'services', 'pricePerHour', 'portfolioUrl', 
           'isCatalogComplete', 'updatedAt', 'email', 'createdAt'
         ])
@@ -125,17 +136,28 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/users/$(incoming().providerId));
       
       allow update: if isSignedIn() && emailVerified() && isValidBooking(incoming()) && (
-        // Client can cancel or approve
-        (isOwner(existing().clientId) && incoming().status in ['cancelled', 'paid', 'closed', 'disputed']) ||
-        // Provider can confirm, start, or complete
-        (isOwner(existing().providerId) && incoming().status in ['confirmed', 'in_progress', 'completed'])
+        // Terminal State Lock
+        !(existing().status in ['closed', 'cancelled']) &&
+        (
+          // Client can cancel or approve
+          (isOwner(existing().clientId) && (incoming().status in ['cancelled', 'paid', 'closed', 'disputed'] || incoming().status == existing().status)) ||
+          // Provider can confirm, start, or complete
+          (isOwner(existing().providerId) && (incoming().status in ['confirmed', 'in_progress', 'completed'] || incoming().status == existing().status))
+        )
       );
     }
 
     match /invoices/{invoiceId} {
       allow get, list: if isSignedIn() && (resource.data.clientId == request.auth.uid || resource.data.providerId == request.auth.uid);
       allow create: if isSignedIn() && isOwner(incoming().providerId) && isValidInvoice(incoming());
-      allow update: if isSignedIn() && (isOwner(existing().clientId) || isOwner(existing().providerId)) && isValidInvoice(incoming());
+      allow update: if isSignedIn() && emailVerified() && isValidInvoice(incoming()) && (
+        // Terminal State Lock
+        !(existing().status in ['approved', 'paid']) &&
+        (
+          (isOwner(existing().clientId) && incoming().status in ['approved', 'disputed']) ||
+          (isOwner(existing().providerId) && incoming().status == existing().status)
+        )
+      );
     }
 
     match /transactions/{transactionId} {
@@ -148,7 +170,10 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       allow get, list: if isSignedIn() && resource.data.userId == request.auth.uid;
       // Notifications are system-driven for this app
-      allow create: if isSignedIn() && isValidNotification(incoming()) && (incoming().userId == request.auth.uid || incoming().get('type', '') == 'invoice_sent');
+      allow create: if isSignedIn() && isValidNotification(incoming()) && (
+        incoming().userId == request.auth.uid || 
+        incoming().get('type', '') in ['invoice_sent', 'task_completed', 'payment_received', 'dispute_raised', 'booking_status']
+      );
       allow update: if isSignedIn() && isOwner(existing().userId) && incoming().diff(existing()).affectedKeys().hasOnly(['read']);
     }
 

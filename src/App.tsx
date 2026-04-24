@@ -202,111 +202,111 @@ export interface Invoice {
   clientName: string;
 }
 
+const TIER_SERVICES_MATRIX: Record<Category, Record<TierLevel, string[]>> = {
+  Household: {
+    Basic: ["House cleaning (regular)", "Dishwashing", "Laundry & ironing", "Grocery shopping", "Babysitting (short hours)", "Basic cooking / meal prep"],
+    Premium: ["Deep cleaning (sofas, carpets, mattresses)", "Full-time nanny services", "Professional home organization", "Weekly meal planning + prep", "Elderly care (non-medical)", "Pet care (walking, feeding, grooming)"],
+    Luxury: ["Live-in house manager", "Private chef (daily or on-demand)", "Butler services", "Concierge home services", "Specialized childcare (trained nannies, tutors)", "Smart home management (automation monitoring)"]
+  },
+  Maintenance: {
+    Basic: ["Plumbing fixes (leaks, taps)", "Electrical fixes (switches, sockets)", "Furniture assembly", "Basic appliance repair", "Painting touch-ups"],
+    Premium: ["Full home repainting", "Advanced electrical work (rewiring)", "Plumbing installations (heaters, piping systems)", "Appliance servicing (fridge, washing machine)", "Carpentry (custom shelves, cabinets)"],
+    Luxury: ["Home renovation projects", "Interior finishing (designer-level)", "Smart home installation (CCTV, automation)", "High-end appliance installation", "Structural upgrades (ceilings, flooring)"]
+  },
+  Logistics: {
+    Basic: ["Small item delivery", "Motorcycle courier services", "Packing assistance", "Local moving (bedsitters/1-bedroom)"],
+    Premium: ["Full house moving (multi-room)", "Office relocation", "Professional packing + unpacking", "Furniture disassembly & reassembly", "Secure transport (fragile items)"],
+    Luxury: ["White-glove moving service", "International relocation support", "Climate-controlled transport", "Art & valuables handling", "Full relocation concierge (housing setup, utilities)"]
+  },
+  Outdoor: {
+    Basic: ["Lawn mowing", "Garden watering", "Basic landscaping", "Garbage collection assistance"],
+    Premium: ["Garden design & landscaping", "Tree trimming", "Pest control services", "Irrigation system installation", "Compound cleaning (pressure washing)"],
+    Luxury: ["Luxury landscape architecture", "Swimming pool maintenance & design", "Outdoor lighting design", "Private garden maintenance teams", "Eco-garden & smart irrigation systems"]
+  },
+  Lifestyle: {
+    Basic: ["Massage therapy (home service)", "Haircuts / barber services", "Basic beauty services (manicure, pedicure)", "Personal shopping assistance"],
+    Premium: ["Spa treatments at home", "Professional hairstyling & makeup", "Fitness training (personal trainer)", "Nutrition consulting", "Event styling (small events)"],
+    Luxury: ["Private wellness concierge", "Personal stylist & image consultant", "Luxury spa experiences (full setup)", "Private yoga/fitness instructor (long-term)", "Exclusive event planning (VIP experiences)"]
+  },
+  Staff: {
+    Basic: ["Temporary workers (cleaners, helpers)", "Casual event staff", "Day laborers"],
+    Premium: ["Trained security personnel", "Professional drivers", "Executive assistants", "Skilled chefs", "Certified caregivers"],
+    Luxury: ["Personal assistants (dedicated)", "Chauffeurs (executive level)", "Estate managers", "Private security teams", "Corporate-level staffing solutions"]
+  }
+};
+
 const CATEGORIES: { id: Category; label: string; icon: any; color: string; subServices: string[] }[] = [
   { 
     id: 'Household', 
     label: 'Household Support', 
     icon: Home, 
     color: 'bg-blue-500', 
-    subServices: ["Daily cleaning", "Laundry", "Dishwashing", "Errands", "Simple meals", "Pet feeding/walking", "House manager", "Butler", "Inventory management", "Guest reception", "Nanny/babysitter", "Elderly care", "Pet grooming/training", "Private chef", "Wardrobe management", "Interior design", "Decluttering"] 
+    subServices: [...TIER_SERVICES_MATRIX.Household.Basic, ...TIER_SERVICES_MATRIX.Household.Premium, ...TIER_SERVICES_MATRIX.Household.Luxury] 
   },
   { 
     id: 'Maintenance', 
     label: 'Maintenance & Repairs', 
     icon: Wrench, 
     color: 'bg-indigo-500', 
-    subServices: ["Light bulb replacement", "Minor plumbing fixes", "Appliance troubleshooting", "Plumbing (pipes, drainage)", "Electrical (wiring, sockets)", "Carpentry", "Painting/decorating", "HVAC installation/servicing", "Smart home automation", "Advanced security systems"] 
+    subServices: [...TIER_SERVICES_MATRIX.Maintenance.Basic, ...TIER_SERVICES_MATRIX.Maintenance.Premium, ...TIER_SERVICES_MATRIX.Maintenance.Luxury] 
   },
   { 
     id: 'Logistics', 
     label: 'Moving & Logistics', 
     icon: Truck, 
     color: 'bg-green-500', 
-    subServices: ["Basic moving help", "Small furniture assembly", "Full moving services", "Furniture disassembly", "Driveway/patio cleaning", "Full-service relocation", "Storage solutions", "Estate-level logistics"] 
+    subServices: [...TIER_SERVICES_MATRIX.Logistics.Basic, ...TIER_SERVICES_MATRIX.Logistics.Premium, ...TIER_SERVICES_MATRIX.Logistics.Luxury] 
   },
   { 
     id: 'Outdoor', 
     label: 'Outdoor Care', 
     icon: Leaf, 
     color: 'bg-emerald-500', 
-    subServices: ["Simple gardening", "Lawn mowing", "Landscaping", "Pool cleaning", "Pressure washing", "Estate landscaping", "Advanced irrigation systems", "Outdoor design"] 
+    subServices: [...TIER_SERVICES_MATRIX.Outdoor.Basic, ...TIER_SERVICES_MATRIX.Outdoor.Premium, ...TIER_SERVICES_MATRIX.Outdoor.Luxury] 
   },
   { 
     id: 'Lifestyle', 
     label: 'Lifestyle & Comfort', 
     icon: Heart, 
     color: 'bg-rose-500', 
-    subServices: ["Basic meal prep", "Laundry/ironing", "Event hosting support", "Concierge services", "Wellness staff"] 
+    subServices: [...TIER_SERVICES_MATRIX.Lifestyle.Basic, ...TIER_SERVICES_MATRIX.Lifestyle.Premium, ...TIER_SERVICES_MATRIX.Lifestyle.Luxury] 
   },
   { 
     id: 'Staff', 
     label: 'Premium Staffing', 
     icon: UserCheck, 
     color: 'bg-slate-500', 
-    subServices: ["General househelp", "Butler", "Nanny", "Elderly companion", "Chauffeur", "Governess", "Estate manager"] 
+    subServices: [...TIER_SERVICES_MATRIX.Staff.Basic, ...TIER_SERVICES_MATRIX.Staff.Premium, ...TIER_SERVICES_MATRIX.Staff.Luxury] 
   },
 ];
-
-const TIER_SERVICES_MATRIX: Record<Category, Record<TierLevel, string[]>> = {
-  Household: {
-    Basic: ["Daily cleaning", "Laundry", "Dishwashing", "Errands", "Simple meals", "Pet feeding/walking"],
-    Premium: ["House manager/butler", "Inventory management", "Guest reception", "Nanny/babysitter", "Elderly care", "Pet grooming/training"],
-    Luxury: ["Private chef", "Wardrobe management", "Interior design", "Decluttering"]
-  },
-  Maintenance: {
-    Basic: ["Light bulb replacement", "Minor plumbing fixes", "Appliance troubleshooting"],
-    Premium: ["Plumbing (pipes, drainage)", "Electrical (wiring, sockets)", "Carpentry", "Painting/decorating"],
-    Luxury: ["HVAC installation/servicing", "Smart home automation", "Advanced security systems"]
-  },
-  Logistics: {
-    Basic: ["Basic moving help", "Small furniture assembly"],
-    Premium: ["Full moving services (packing, transport, unpacking)", "Furniture disassembly", "Driveway/patio cleaning"],
-    Luxury: ["Full-service relocation", "Storage solutions", "Estate-level logistics"]
-  },
-  Outdoor: {
-    Basic: ["Simple gardening", "Lawn mowing"],
-    Premium: ["Landscaping", "Pool cleaning", "Pressure washing"],
-    Luxury: ["Estate landscaping", "Advanced irrigation systems", "Outdoor design"]
-  },
-  Lifestyle: {
-    Basic: ["Basic meal prep", "Laundry/ironing"],
-    Premium: ["Event hosting support (servers, bartenders, decorators)"],
-    Luxury: ["Concierge services (travel bookings, reservations, personal shopping)", "Wellness staff (trainer, yoga, massage)"]
-  },
-  Staff: {
-    Basic: ["General househelp/domestic worker"],
-    Premium: ["Butler", "Nanny", "Elderly companion"],
-    Luxury: ["Chauffeur", "Governess", "Estate manager"]
-  }
-};
 
 const CATALOG_PACKAGES: { tier: TierLevel; title: string; subtitle: string; fee: number; icon: any; color: string; description: string }[] = [
   {
     tier: 'Basic',
     title: 'Essential',
-    subtitle: 'Everyday Household Care',
+    subtitle: 'Task-based, Low Commitment',
     fee: 4.5,
     icon: Home,
     color: 'from-blue-500 to-indigo-600',
-    description: "Daily cleaning, laundry, dishwashing, errands, simple meals, pet feeding, light maintenance, and minor fixes."
+    description: "Everyday household care, basic repairs, single-item logistics, and simple lifestyle tasks. Standard task-based pricing."
   },
   {
     tier: 'Premium',
     title: 'Professional',
-    subtitle: 'Comprehensive Management',
+    subtitle: 'Skilled & Specialized',
     fee: 7,
     icon: ShieldCheck,
     color: 'from-emerald-500 to-teal-600',
-    description: "House managers, nannies, elderly care, full moving services, landscaping, and specialized technical repairs."
+    description: "Deep hospitality service, advanced technical repairs, full relocations, and professional lifestyle consulting. Certified talent."
   },
   {
     tier: 'Luxury',
     title: 'Elite',
-    subtitle: 'Estates & Lifestyle',
+    subtitle: 'Personalized, High-Value',
     fee: 9,
     icon: Gem,
     color: 'from-amber-500 to-orange-600',
-    description: "Private chefs, full-service relocation, smart home automation, estate design, concierge, and wellness staff."
+    description: "Full estate management, live-in staff, private chefs, landscape architecture, and exclusive VIP lifestyle experiences. Absolute discretion."
   }
 ];
 
@@ -1157,16 +1157,19 @@ export default function App() {
             setMode={setAuthMode as any} 
           />
         ) : (
-          <OnboardingView 
-            onComplete={() => setIsAuthenticated(true)} 
-            onSave={handleSaveOnboarding}
-            role={userRole} 
-            setToast={setToast}
-          />
+          <div className="w-full h-full flex items-center justify-center p-4">
+            <OnboardingView 
+              user={user!}
+              onComplete={() => setIsAuthenticated(true)} 
+              onSave={handleSaveOnboarding}
+              role={userRole} 
+              setToast={setToast}
+            />
+          </div>
         )
       ) : (
         /* App Container */
-        <div className="w-full h-full md:h-auto md:max-w-6xl md:aspect-[16/9] md:max-h-[90vh] bg-sidebar md:shadow-[0_32px_128px_-16px_rgba(0,0,0,0.1)] md:dark:shadow-[0_32px_128px_-16px_rgba(0,0,0,0.5)] md:rounded-[40px] md:border border-border-slate flex flex-col md:flex-row overflow-hidden relative">
+        <div className="w-full h-full md:h-[95vh] md:max-w-[1400px] bg-sidebar md:shadow-3xl md:rounded-[40px] md:border border-border-slate flex flex-col md:flex-row overflow-hidden relative app-container md:p-0">
           
           {/* Sidebar Nav (Desktop/Tablet) */}
         <nav className="hidden md:flex w-20 lg:w-24 border-r border-border-slate flex-col items-center py-10 gap-8 shrink-0 bg-sidebar/50 backdrop-blur-md">
@@ -1399,6 +1402,8 @@ function AuthView({ onLogin, onSignup, mode, setMode }: { onLogin: (role: UserRo
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isResetSent, setIsResetSent] = useState(false);
@@ -1417,6 +1422,11 @@ function AuthView({ onLogin, onSignup, mode, setMode }: { onLogin: (role: UserRo
         await signInWithEmailAndPassword(auth, trimmedEmail, password);
         onLogin(isSpecialist ? 'provider' : 'client');
       } else if (mode === 'signup') {
+        if (!fullName.trim()) {
+           setAuthError("Full name is required.");
+           setLoading(false);
+           return;
+        }
         if (!agreedToTerms) {
           setAuthError("You must agree to the protocols.");
           setLoading(false);
@@ -1425,13 +1435,16 @@ function AuthView({ onLogin, onSignup, mode, setMode }: { onLogin: (role: UserRo
         const result = await createUserWithEmailAndPassword(auth, trimmedEmail, password);
         await sendEmailVerification(result.user);
         
-        // Create initial profile
+        // Create initial profile with more data
         await setDoc(doc(db, 'users', result.user.uid), {
           uid: result.user.uid,
           email: result.user.email,
+          name: fullName.trim(),
+          phone: phone.trim(),
           role: isSpecialist ? 'provider' : 'client',
           createdAt: serverTimestamp(),
-          isAwaitingVerification: true
+          isAwaitingVerification: true,
+          onboardingStep: 0
         });
 
         onSignup(isSpecialist ? 'provider' : 'client');
@@ -1556,6 +1569,35 @@ function AuthView({ onLogin, onSignup, mode, setMode }: { onLogin: (role: UserRo
             {authError && (
               <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
                 <p className="text-[10px] font-bold text-red-500 uppercase text-center">{authError}</p>
+              </motion.div>
+            )}
+
+            {mode === 'signup' && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4">
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-light/40">
+                      <UserCheck size={18} />
+                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Full Identity Name" 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full pl-12 pr-6 py-4 bg-sidebar/30 border border-border-slate rounded-2xl text-text-main text-xs focus:outline-none focus:border-primary-blue transition-all" 
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-light/40">
+                      <Phone size={18} />
+                  </div>
+                  <input 
+                    type="tel" 
+                    placeholder="Mobile Routing Number (+254...)" 
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full pl-12 pr-6 py-4 bg-sidebar/30 border border-border-slate rounded-2xl text-text-main text-xs focus:outline-none focus:border-primary-blue transition-all" 
+                  />
+                </div>
               </motion.div>
             )}
 
@@ -1949,7 +1991,8 @@ function TermsModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void 
   );
 }
 
-function OnboardingView({ onComplete, onSave, role, setToast }: { 
+function OnboardingView({ user, onComplete, onSave, role, setToast }: { 
+  user: FirebaseUser,
   onComplete: () => void, 
   onSave: (data: any) => void, 
   role: UserRole,
@@ -1969,6 +2012,21 @@ function OnboardingView({ onComplete, onSave, role, setToast }: {
     interests: [] as string[],
     locationCoords: null as { latitude: number, longitude: number } | null
   });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        setFormData(prev => ({
+          ...prev,
+          name: data.name || user.displayName || '',
+          phone: data.phone || '',
+        }));
+      }
+    };
+    fetchUserData();
+  }, [user]);
 
   const interestOptions = [
     "Luxury Living", "Tech & Gadgets", "Wellness & Fitness", 
@@ -2189,25 +2247,41 @@ function OnboardingView({ onComplete, onSave, role, setToast }: {
 
                    {/* Dynamic Services based on Category/Tier */}
                    <div className="space-y-3">
-                      <label className="text-[9px] font-black text-text-light uppercase ml-2">Specialized Services (Tier: {specialistData.tier})</label>
+                      <div className="flex justify-between items-center ml-2">
+                         <label className="text-[9px] font-black text-text-light uppercase">Specialized Services ({specialistData.tier})</label>
+                         <span className="text-[9px] font-black text-primary-blue uppercase">
+                           {specialistData.services.filter(s => TIER_SERVICES_MATRIX[specialistData.category][specialistData.tier].includes(s)).length}/3 Selected
+                         </span>
+                      </div>
                       <div className="grid grid-cols-2 gap-2">
-                         {TIER_SERVICES_MATRIX[specialistData.category][specialistData.tier].map(service => (
-                           <button 
-                              key={service}
-                              onClick={() => {
-                                 const exists = specialistData.services.includes(service);
-                                 setSpecialistData({
-                                    ...specialistData,
-                                    services: exists ? specialistData.services.filter(s => s !== service) : [...specialistData.services, service]
-                                 });
-                              }}
-                              className={`p-3 rounded-xl border text-[9px] font-bold text-left transition-all ${
-                                specialistData.services.includes(service) ? 'bg-primary-blue/10 border-primary-blue text-primary-blue' : 'border-border-slate text-text-light hover:border-text-main'
-                              }`}
-                           >
-                              {service}
-                           </button>
-                         ))}
+                         {TIER_SERVICES_MATRIX[specialistData.category][specialistData.tier].map(service => {
+                           const isSelected = specialistData.services.includes(service);
+                           return (
+                            <button 
+                               key={service}
+                               onClick={() => {
+                                  const exists = isSelected;
+                                  const tierServices = TIER_SERVICES_MATRIX[specialistData.category][specialistData.tier];
+                                  const countInTier = specialistData.services.filter(s => tierServices.includes(s)).length;
+
+                                  if (!exists && countInTier >= 3) {
+                                    setToast({ message: `Selection Reached: You can offer a maximum of 3 services in the ${specialistData.tier} tier.` });
+                                    return;
+                                  }
+
+                                  setSpecialistData({
+                                     ...specialistData,
+                                     services: exists ? specialistData.services.filter(s => s !== service) : [...specialistData.services, service]
+                                  });
+                               }}
+                               className={`p-3 rounded-xl border text-[9px] font-bold text-left transition-all ${
+                                 isSelected ? 'bg-primary-blue/10 border-primary-blue text-primary-blue' : 'border-border-slate text-text-light hover:border-text-main'
+                               }`}
+                            >
+                               {service}
+                            </button>
+                           );
+                         })}
                       </div>
                    </div>
 
@@ -3571,20 +3645,28 @@ function ProviderCatalogView({ profile, setProfile, onFinalize, setToast }: {
 
   const toggleService = (service: string, tier: TierLevel) => {
     const isSelected = profile.services.includes(service);
+    
+    if (!isSelected) {
+      const tierServicesList = TIER_SERVICES_MATRIX[profile.category][tier];
+      const currentSelectionsInTier = profile.services.filter(s => tierServicesList.includes(s));
+      if (currentSelectionsInTier.length >= 3) {
+        setToast({ message: `Selection Limit: Operational protocol allows a maximum of 3 items per ${tier} tier. Deselect an existing ${tier} service to adjust your roster.` });
+        return;
+      }
+    }
+
     let newServices = isSelected
       ? profile.services.filter(s => s !== service)
       : [...profile.services, service];
     
     // Determine highest tier among selected services
     let highestTier: TierLevel = 'Basic';
-    CATEGORIES.forEach(c => {
-      ['Luxury', 'Premium', 'Basic'].forEach(t => {
-        const tierServices = TIER_SERVICES_MATRIX[c.id][t as TierLevel];
-        if (newServices.some(s => tierServices.includes(s))) {
-          if (t === 'Luxury') highestTier = 'Luxury';
-          else if (t === 'Premium' && highestTier === 'Basic') highestTier = 'Premium';
-        }
-      });
+    ['Luxury', 'Premium', 'Basic'].forEach(t => {
+      const tierServices = TIER_SERVICES_MATRIX[profile.category][t as TierLevel];
+      if (newServices.some(s => tierServices.includes(s))) {
+        if (t === 'Luxury') highestTier = 'Luxury';
+        else if (t === 'Premium' && highestTier === 'Basic') highestTier = 'Premium';
+      }
     });
 
     setProfile({ ...profile, services: newServices, tier: highestTier });
@@ -3791,11 +3873,16 @@ function ProviderCatalogView({ profile, setProfile, onFinalize, setToast }: {
                       <div className={`w-1 h-8 rounded-full ${
                         tier === 'Luxury' ? 'bg-amber-500' : tier === 'Premium' ? 'bg-emerald-500' : 'bg-primary-blue'
                       }`} />
-                      <div>
-                        <h4 className="text-xs font-black text-text-main uppercase tracking-[0.3em]">{tier} Tier</h4>
-                        <p className="text-[10px] text-text-light font-bold uppercase tracking-widest">
-                          {CATALOG_PACKAGES.find(p => p.tier === tier)?.fee}% Platform Fee
-                        </p>
+                      <div className="flex-1">
+                         <div className="flex justify-between items-center">
+                            <h4 className="text-xs font-black text-text-main uppercase tracking-[0.3em]">{tier} Tier</h4>
+                            <span className="text-[9px] font-black text-text-light uppercase tracking-widest">
+                               {profile.services.filter(s => TIER_SERVICES_MATRIX[selectedCategory][tier].includes(s)).length}/3 Assigned
+                            </span>
+                         </div>
+                         <p className="text-[10px] text-text-light font-bold uppercase tracking-widest">
+                           {CATALOG_PACKAGES.find(p => p.tier === tier)?.fee}% Platform Fee
+                         </p>
                       </div>
                       <div className="flex-1 h-px bg-border-slate/10" />
                    </div>

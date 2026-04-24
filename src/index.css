@@ -42,3 +42,27 @@
       #020617;
   }
 }
+
+/* Responsive Layout System */
+@layer components {
+  .app-container {
+    @apply w-full max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8;
+  }
+
+  .responsive-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  }
+
+  .glass-card {
+    @apply bg-sidebar/50 backdrop-blur-xl border border-border-slate rounded-[32px] shadow-sm;
+  }
+}
+
+/* Smooth Scrolling & Fixes */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
