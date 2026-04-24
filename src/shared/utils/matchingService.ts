@@ -1,4 +1,4 @@
-import { type Booking, type Provider, type Category } from "../shared/types";
+import { Booking, Provider, Category } from "../types";
 
 export interface MatchResult {
   score: number;

@@ -1,0 +1,123 @@
+import { Provider } from './types';
+
+export const MOCK_PROVIDERS: Provider[] = [
+  { 
+    id: '1', 
+    name: 'Sarah Wangari', 
+    category: 'Household', 
+    subCategory: 'House cleaning',
+    tier: 'Basic',
+    bio: 'Professional deep cleaning specialist with 5 years experience in Nairobi West. I specialize in post-construction and move-in/out cleaning.', 
+    rating: 4.8, 
+    reviews: 124, 
+    location: 'Westlands, Nairobi', 
+    distance: '2.4 km', 
+    pricePerHour: 1500, 
+    image: 'https://picsum.photos/seed/sarah/600/800', 
+    verified: true, 
+    joined: '2021', 
+    isAvailable: true,
+    services: ['Deep Cleaning', 'Regular Maintenance', 'Move-out Prep'],
+    reliability: 98,
+    flaggedCount: 0,
+    testimonials: [
+      { writer: 'Alice M.', text: 'House was spotless! Very thorough.', rating: 5, date: '2024-03-12' },
+      { writer: 'Kevin O.', text: 'Good work, arrived on time.', rating: 4, date: '2024-04-01' }
+    ],
+    reports: []
+  },
+  { 
+    id: '2', 
+    name: 'John Mutua', 
+    category: 'Maintenance', 
+    subCategory: 'Plumbing',
+    tier: 'Premium',
+    bio: 'Licensed plumber available for emergency leaks, pipe repairs, and bathroom installations. Efficient and reliable.', 
+    rating: 4.9, 
+    reviews: 89, 
+    location: 'Kilimani, Nairobi', 
+    distance: '1.8 km', 
+    pricePerHour: 2200, 
+    image: 'https://picsum.photos/seed/john/600/800', 
+    verified: true, 
+    joined: '2022', 
+    isAvailable: false,
+    services: ['Leak Repair', 'Pipe Installation', 'Water Heaters'],
+    reliability: 95,
+    flaggedCount: 1,
+    testimonials: [
+      { writer: 'Peter P.', text: 'Fixed the leak in minutes. Legend!', rating: 5, date: '2024-02-15' }
+    ],
+    reports: [
+      { id: 'r1', reporterId: 'c2', reason: 'Late arrival without notice', date: '2023-11-20', status: 'reviewed' }
+    ]
+  },
+  { 
+    id: '3', 
+    name: 'Faith Chebet', 
+    category: 'Maintenance', 
+    subCategory: 'Electrical',
+    tier: 'Premium',
+    bio: 'Solar installation expert and high-precision residential electrician. EPRA certified for industrial and home setups.', 
+    rating: 4.7, 
+    reviews: 56, 
+    location: 'Lavington, Nairobi', 
+    distance: '3.1 km', 
+    pricePerHour: 3000, 
+    image: 'https://picsum.photos/seed/faith/600/800', 
+    verified: true, 
+    joined: '2026', 
+    isAvailable: true,
+    services: ['Solar Panel Install', 'Full House Wiring', 'Fault Finding'],
+    reliability: 92,
+    flaggedCount: 0,
+    testimonials: [],
+    reports: []
+  },
+  { 
+    id: '4', 
+    name: 'Peter Kamau', 
+    category: 'Maintenance', 
+    subCategory: 'Painting',
+    tier: 'Premium',
+    bio: 'Master painter with an eye for detail. I handle both interior and exterior projects with professional-grade finishes.', 
+    rating: 4.6, 
+    reviews: 32, 
+    location: 'Karen, Nairobi', 
+    distance: '5.2 km', 
+    pricePerHour: 1800, 
+    image: 'https://picsum.photos/seed/peter/600/800', 
+    verified: false, 
+    joined: '2026', 
+    isAvailable: true,
+    services: ['Interior Painting', 'Wall Texturing', 'Surface Prep'],
+    reliability: 88,
+    flaggedCount: 0,
+    testimonials: [],
+    reports: []
+  },
+  { 
+    id: '5', 
+    name: 'Luxury Estates Group', 
+    category: 'Staff', 
+    subCategory: 'Elite Care',
+    tier: 'Luxury',
+    bio: 'Unified staffing solutions for premium estates. We provide background-checked, butler-trained personnel for permanent and temporary placement.', 
+    rating: 5.0, 
+    reviews: 12, 
+    location: 'Muthaiga, Nairobi', 
+    distance: '6.4 km', 
+    pricePerHour: 15000, 
+    image: 'https://picsum.photos/seed/staff/600/800', 
+    verified: true, 
+    joined: '2023', 
+    isAvailable: true,
+    services: ['Butler Services', 'Domestic Management', 'VIP Security'],
+    reliability: 100,
+    flaggedCount: 0,
+    testimonials: [
+      { writer: 'Dr. Evans', text: 'Utterly professional. Transformed our home management.', rating: 5, date: '2024-01-10' }
+    ],
+    reports: []
+  }
+];

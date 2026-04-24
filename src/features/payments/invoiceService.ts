@@ -1,6 +1,5 @@
-import { collection, doc, serverTimestamp, writeBatch } from "firebase/firestore";
-import { db } from "../firebase-config";
-import { type Booking } from "../shared/types";
+import { serverTimestamp } from "firebase/firestore";
+import { Booking } from "../../shared/types";
 
 export const invoiceService = {
   generateInvoiceId: () => `INV-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,

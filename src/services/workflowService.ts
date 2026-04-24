@@ -1,6 +1,6 @@
 import { doc, serverTimestamp, collection, writeBatch, getDoc } from "firebase/firestore";
 import { db } from "../firebase-config";
-import { type Booking, type Invoice } from "../App";
+import { type Booking, type Invoice } from "../shared/types";
 import { invoiceService } from "./invoiceService";
 import { paymentService } from "./paymentService";
 
