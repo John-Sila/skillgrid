@@ -17,7 +17,7 @@ export const SearchProviderCard: React.FC<SearchProviderCardProps> = ({
   return (
     <div 
       onClick={onViewProfile}
-      className="p-6 bg-text-main/[0.02] dark:bg-white/[0.02] border border-border-slate rounded-[32px] flex items-center gap-6 hover:bg-text-main/[0.05] dark:hover:bg-white/[0.05] transition-all group cursor-pointer relative overflow-hidden"
+      className="p-6 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[32px] flex items-center gap-6 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all group cursor-pointer relative overflow-hidden"
     >
       {provider.matchScore && provider.matchScore > 85 && (
         <div className="absolute top-0 right-0 px-3 py-1 bg-primary-blue text-[8px] font-black text-white uppercase tracking-[0.2em] rounded-bl-xl border-b border-l border-primary-blue/30 shadow-lg z-10">
@@ -62,7 +62,7 @@ export const SearchProviderCard: React.FC<SearchProviderCardProps> = ({
         >
           Book Now
         </button>
-        <div className="w-10 h-10 bg-sidebar/40 rounded-xl flex items-center justify-center text-text-light group-hover:hidden transition-all border border-border-slate">
+        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 group-hover:hidden transition-all border border-slate-200 dark:border-slate-700">
            <ChevronRight size={18} />
         </div>
       </div>

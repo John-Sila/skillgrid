@@ -14,6 +14,12 @@
   --color-border-slate: #CBD5E1;
   --color-accent-green: #059669;
   --color-accent-purple: #7C3AED;
+
+  /* App Specific Colors */
+  --color-blue-light: #e8f1ff;
+  --color-blue-dark: #1e3a8a;
+  --color-lilac: #d9d4f0;
+  --gradient-app: linear-gradient(180deg, var(--color-blue-dark), var(--color-blue-light), var(--color-lilac));
 }
 
 @layer base {
@@ -29,8 +35,8 @@
     --color-bg: #020617;
     --color-sidebar: #0F172A;
     --color-primary-blue: #38BDF8;
-    --color-text-main: #F8FAFC;
-    --color-text-light: #94A3B8;
+    --color-text-main: #CBD5E1; /* Slate 300 instead of F8FAFC */
+    --color-text-light: #64748B; /* Slate 500 instead of 94A3B8 */
     --color-card-bg: rgba(255, 255, 255, 0.02);
     --color-border-slate: rgba(255, 255, 255, 0.08);
   }

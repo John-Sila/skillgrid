@@ -98,7 +98,18 @@ service cloud.firestore {
         && data.providerId is string && data.date is string;
     }
 
+    function isValidCategory(data) {
+      return data.keys().hasAll(['id', 'label', 'icon', 'color'])
+        && data.id is string && data.label is string
+        && data.icon is string && data.color is string;
+    }
+
     // --- Collection Routes ---
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if false;
+    }
 
     match /users/{userId} {
       allow get: if isSignedIn();

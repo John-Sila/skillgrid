@@ -1,5 +1,5 @@
 import { doc, getDoc, updateDoc, serverTimestamp, type DocumentReference } from "firebase/firestore";
-import { db } from "../firebase-config";
+import { db } from "../firebase/config";
 import { type Booking } from "../shared/types";
 
 export const taskService = {

@@ -49,6 +49,12 @@ export const DashboardPage: React.FC = () => {
     setBlockedDates(newBlocked);
   };
 
+  const setBlockedDatesBatch = async (dates: string[]) => {
+    if (!auth.currentUser) return;
+    await updateDoc(doc(db, 'users', auth.currentUser.uid), { blockedDates: dates });
+    setBlockedDates(dates);
+  };
+
   return (
     <ProviderDashboardView 
       onProfileClick={() => navigate('/profile')}
@@ -57,6 +63,7 @@ export const DashboardPage: React.FC = () => {
       bookings={bookings}
       blockedDates={blockedDates}
       toggleBlockDate={toggleBlockDate}
+      setBlockedDatesBatch={setBlockedDatesBatch}
       profile={profile}
     />
   );

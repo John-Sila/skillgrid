@@ -27,32 +27,44 @@ export const TIER_SERVICES_MATRIX: Record<Category, Record<TierLevel, string[]>>
   Household: {
     Basic: ["House cleaning (regular)", "Dishwashing", "Laundry & ironing", "Grocery shopping", "Babysitting (short hours)", "Basic cooking / meal prep"],
     Premium: ["Deep cleaning (sofas, carpets, mattresses)", "Full-time nanny services", "Professional home organization", "Weekly meal planning + prep", "Elderly care (non-medical)", "Pet care (walking, feeding, grooming)"],
-    Luxury: ["Live-in house manager", "Private chef (daily or on-demand)", "Butler services", "Concierge home services", "Specialized childcare (trained nannies, tutors)", "Smart home management (automation monitoring)"]
+    Luxury: ["Live-in house manager", "Private chef (daily or on-demand)", "Butler services", "Concierge home services", "Specialized childcare (trained nannies, tutors)", "Smart home management (automation monitoring)"],
+    Other: [],
+    "Other Services": []
   },
   Maintenance: {
     Basic: ["Plumbing fixes (leaks, taps)", "Electrical fixes (switches, sockets)", "Furniture assembly", "Basic appliance repair", "Painting touch-ups"],
     Premium: ["Full home repainting", "Advanced electrical work (rewiring)", "Plumbing installations (heaters, piping systems)", "Appliance servicing (fridge, washing machine)", "Carpentry (custom shelves, cabinets)"],
-    Luxury: ["Home renovation projects", "Interior finishing (designer-level)", "Smart home installation (CCTV, automation)", "High-end appliance installation", "Structural upgrades (ceilings, flooring)"]
+    Luxury: ["Home renovation projects", "Interior finishing (designer-level)", "Smart home installation (CCTV, automation)", "High-end appliance installation", "Structural upgrades (ceilings, flooring)"],
+    Other: [],
+    "Other Services": []
   },
   Logistics: {
     Basic: ["Small item delivery", "Motorcycle courier services", "Packing assistance", "Local moving (bedsitters/1-bedroom)"],
     Premium: ["Full house moving (multi-room)", "Office relocation", "Professional packing + unpacking", "Furniture disassembly & reassembly", "Secure transport (fragile items)"],
-    Luxury: ["White-glove moving service", "International relocation support", "Climate-controlled transport", "Art & valuables handling", "Full relocation concierge (housing setup, utilities)"]
+    Luxury: ["White-glove moving service", "International relocation support", "Climate-controlled transport", "Art & valuables handling", "Full relocation concierge (housing setup, utilities)"],
+    Other: [],
+    "Other Services": []
   },
   Outdoor: {
     Basic: ["Lawn mowing", "Garden watering", "Basic landscaping", "Garbage collection assistance"],
     Premium: ["Garden design & landscaping", "Tree trimming", "Pest control services", "Irrigation system installation", "Compound cleaning (pressure washing)"],
-    Luxury: ["Luxury landscape architecture", "Swimming pool maintenance & design", "Outdoor lighting design", "Private garden maintenance teams", "Eco-garden & smart irrigation systems"]
+    Luxury: ["Luxury landscape architecture", "Swimming pool maintenance & design", "Outdoor lighting design", "Private garden maintenance teams", "Eco-garden & smart irrigation systems"],
+    Other: [],
+    "Other Services": []
   },
   Lifestyle: {
     Basic: ["Massage therapy (home service)", "Haircuts / barber services", "Basic beauty services (manicure, pedicure)", "Personal shopping assistance"],
     Premium: ["Spa treatments at home", "Professional hairstyling & makeup", "Fitness training (personal trainer)", "Nutrition consulting", "Event styling (small events)"],
-    Luxury: ["Private wellness concierge", "Personal stylist & image consultant", "Luxury spa experiences (full setup)", "Private yoga/fitness instructor (long-term)", "Exclusive event planning (VIP experiences)"]
+    Luxury: ["Private wellness concierge", "Personal stylist & image consultant", "Luxury spa experiences (full setup)", "Private yoga/fitness instructor (long-term)", "Exclusive event planning (VIP experiences)"],
+    Other: [],
+    "Other Services": []
   },
   Staff: {
     Basic: ["Temporary workers (cleaners, helpers)", "Casual event staff", "Day laborers"],
     Premium: ["Trained security personnel", "Professional drivers", "Executive assistants", "Skilled chefs", "Certified caregivers"],
-    Luxury: ["Personal assistants (dedicated)", "Chauffeurs (executive level)", "Estate managers", "Private security teams", "Corporate-level staffing solutions"]
+    Luxury: ["Personal assistants (dedicated)", "Chauffeurs (executive level)", "Estate managers", "Private security teams", "Corporate-level staffing solutions"],
+    Other: [],
+    "Other Services": []
   }
 };
 
@@ -61,42 +73,35 @@ export const CATEGORIES: { id: Category; label: string; icon: any; color: string
     id: 'Household', 
     label: 'Household Support', 
     icon: Home, 
-    color: 'bg-blue-500', 
+    color: 'bg-[#2563EB]', 
     subServices: [...TIER_SERVICES_MATRIX.Household.Basic, ...TIER_SERVICES_MATRIX.Household.Premium, ...TIER_SERVICES_MATRIX.Household.Luxury] 
   },
   { 
     id: 'Maintenance', 
     label: 'Maintenance & Repairs', 
     icon: Wrench, 
-    color: 'bg-indigo-500', 
+    color: 'bg-[#7C3AED]', 
     subServices: [...TIER_SERVICES_MATRIX.Maintenance.Basic, ...TIER_SERVICES_MATRIX.Maintenance.Premium, ...TIER_SERVICES_MATRIX.Maintenance.Luxury] 
   },
   { 
     id: 'Logistics', 
     label: 'Moving & Logistics', 
     icon: Truck, 
-    color: 'bg-green-500', 
+    color: 'bg-[#059669]', 
     subServices: [...TIER_SERVICES_MATRIX.Logistics.Basic, ...TIER_SERVICES_MATRIX.Logistics.Premium, ...TIER_SERVICES_MATRIX.Logistics.Luxury] 
   },
   { 
     id: 'Outdoor', 
     label: 'Outdoor Care', 
     icon: Leaf, 
-    color: 'bg-emerald-500', 
+    color: 'bg-[#E11D48]', 
     subServices: [...TIER_SERVICES_MATRIX.Outdoor.Basic, ...TIER_SERVICES_MATRIX.Outdoor.Premium, ...TIER_SERVICES_MATRIX.Outdoor.Luxury] 
-  },
-  { 
-    id: 'Lifestyle', 
-    label: 'Lifestyle & Comfort', 
-    icon: Heart, 
-    color: 'bg-rose-500', 
-    subServices: [...TIER_SERVICES_MATRIX.Lifestyle.Basic, ...TIER_SERVICES_MATRIX.Lifestyle.Premium, ...TIER_SERVICES_MATRIX.Lifestyle.Luxury] 
   },
   { 
     id: 'Staff', 
     label: 'Premium Staffing', 
     icon: UserCheck, 
-    color: 'bg-slate-500', 
+    color: 'bg-[#475569]', 
     subServices: [...TIER_SERVICES_MATRIX.Staff.Basic, ...TIER_SERVICES_MATRIX.Staff.Premium, ...TIER_SERVICES_MATRIX.Staff.Luxury] 
   },
 ];

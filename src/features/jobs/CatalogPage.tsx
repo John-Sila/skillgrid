@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChevronLeft, 
   AlertCircle, 
@@ -23,7 +23,7 @@ import { auth, db } from '../../firebase/config';
 import { Toast } from '../../shared/components/Toast';
 
 export const CatalogPage: React.FC = () => {
-  const [step, setStep] = useState<'setup' | 'questions' | 'legal'>('setup');
+  const [step, setStep] = useState<'category' | 'setup' | 'questions' | 'legal'>('category');
   const [profile, setProfile] = useState<{ tier: TierLevel, category: Category, services: string[] }>({
     tier: 'Basic',
     category: 'Household',
@@ -33,6 +33,45 @@ export const CatalogPage: React.FC = () => {
   const [hasAcceptedLegal, setHasAcceptedLegal] = useState(false);
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [toast, setToast] = useState<{ message: string } | null>(null);
+
+  const steps = [
+    { id: 'category', label: 'Domain' },
+    { id: 'setup', label: 'Services' },
+    { id: 'questions', label: 'Verification' },
+    { id: 'legal', label: 'Legal' }
+  ];
+
+  const currentStepIndex = steps.findIndex(s => s.id === step);
+
+  const StepIndicator = () => (
+    <div className="flex items-center justify-center mb-12">
+      {steps.map((s, i) => (
+        <React.Fragment key={s.id}>
+          <div className="flex flex-col items-center relative">
+            <div 
+              className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
+                i <= currentStepIndex 
+                  ? 'bg-primary-blue border-primary-blue text-white shadow-lg shadow-blue-500/30' 
+                  : 'bg-sidebar border-border-slate text-text-light'
+              }`}
+            >
+              {i < currentStepIndex ? <Check size={18} strokeWidth={3} /> : <span className="text-xs font-black">{i + 1}</span>}
+            </div>
+            <span className={`absolute -bottom-7 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-colors duration-500 ${
+              i <= currentStepIndex ? 'text-text-main' : 'text-text-light'
+            }`}>
+              {s.label}
+            </span>
+          </div>
+          {i < steps.length - 1 && (
+            <div className={`w-16 md:w-24 h-[2px] mx-2 mb-0 transition-colors duration-500 ${
+              i < currentStepIndex ? 'bg-primary-blue' : 'bg-border-slate/30'
+            }`} />
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
 
   const toggleService = (service: string, tier: TierLevel) => {
     const isSelected = profile.services.includes(service);
@@ -90,7 +129,9 @@ export const CatalogPage: React.FC = () => {
         catalogFinalized: true
       });
       setToast({ message: "Professional catalog finalized and deployed!" });
-      // Maybe navigate back to dashboard
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 2000);
     } catch (err) {
       console.error(err);
       setToast({ message: "Failed to finalize catalog." });
@@ -99,177 +140,298 @@ export const CatalogPage: React.FC = () => {
     }
   };
 
-  if (step === 'questions') {
+  if (step === 'category') {
     return (
-      <div className="h-full w-full overflow-y-auto bg-card-bg/50">
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="p-5 md:p-8 lg:p-12 max-w-4xl mx-auto">
-          <header className="mb-12 text-left">
-            <div className="flex items-center gap-4 mb-4">
-               <button onClick={() => setStep('setup')} className="text-text-light hover:text-text-main transition-colors">
-                  <ChevronLeft size={24} />
-               </button>
-               <span className="px-3 py-1 bg-primary-blue/10 text-primary-blue text-[10px] font-black uppercase tracking-widest rounded-full">Part 2 of 3</span>
-            </div>
-            <h2 className="text-4xl font-black text-text-main uppercase tracking-tighter leading-none mb-2">Qualification Assessment</h2>
-            <p className="text-text-light text-sm font-medium">Verified providers must maintain 100% compliance with industry standards for {profile.category} services.</p>
-          </header>
+      <div className="h-full w-full overflow-y-auto bg-slate-50/50">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-6 md:p-10 lg:p-16 max-w-6xl mx-auto">
+        <header className="mb-12 text-center">
+          <h2 className="text-4xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-6">
+            Professional Domain
+          </h2>
+          <p className="text-slate-500 text-base md:text-lg font-medium max-w-2xl mx-auto leading-relaxed">
+            Select your primary area of expertise. This will determine the service matrix and specialized verification requirements for your catalog.
+          </p>
+        </header>
 
-          <div className="bg-sidebar/40 border border-border-slate rounded-[48px] p-10 space-y-8 shadow-2xl">
-             <div className="grid gap-4">
-                {QUALIFICATION_QUESTIONS[profile.category].map((q, i) => (
-                  <div key={i} className={`p-6 rounded-3xl border transition-all flex items-center justify-between gap-4 ${answers[i] ? 'bg-primary-blue/5 border-primary-blue/30' : 'bg-sidebar border-border-slate'}`}>
-                     <p className="text-xs font-bold text-text-main leading-relaxed max-w-xl text-left">{q}</p>
-                     <button 
-                      onClick={() => {
-                        const newAnswers = [...answers];
-                        newAnswers[i] = !newAnswers[i];
-                        setAnswers(newAnswers);
-                      }}
-                      className={`w-14 h-8 rounded-full p-1 transition-all flex items-center shrink-0 ${answers[i] ? 'bg-primary-blue justify-end' : 'bg-border-slate/30 justify-start'}`}
-                     >
-                       <div className="w-6 h-6 bg-white rounded-full shadow-sm" />
-                     </button>
-                  </div>
-                ))}
-             </div>
+        <StepIndicator />
 
-             <div className="p-8 bg-text-main text-sidebar rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                   <AlertCircle size={24} />
-                   <p className="text-[11px] font-bold uppercase tracking-tight text-left">By toggling these, you attest to their accuracy under our Professional Charter.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {CATEGORIES.map((cat) => {
+            const Icon = cat.icon;
+            const isSelected = profile.category === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => {
+                  setProfile({ ...profile, category: cat.id, services: [] });
+                  setStep('setup');
+                }}
+                className={`group relative p-10 rounded-[48px] border-2 text-left transition-all duration-300 overflow-hidden ${
+                  isSelected 
+                    ? 'bg-blue-600 border-blue-600 shadow-2xl shadow-blue-500/20' 
+                    : 'bg-white border-slate-200 hover:border-blue-500/50 hover:shadow-xl hover:shadow-slate-200/50'
+                }`}
+              >
+                <div className={`absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 rounded-full blur-3xl opacity-10 transition-all group-hover:opacity-20 ${cat.color}`} />
+                
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-all ${
+                  isSelected ? 'bg-white text-blue-600 shadow-lg' : 'bg-slate-50 border border-slate-100 text-slate-400 group-hover:scale-110'
+                }`}>
+                  <Icon size={32} />
                 </div>
-                <button 
-                  onClick={submitAnswers}
-                  className="w-full md:w-auto px-10 py-4 bg-primary-blue text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
-                >
-                  Validate Answers
-                </button>
-             </div>
-          </div>
-        </motion.div>
-        <Toast toast={toast} onClose={() => setToast(null)} />
-      </div>
+
+                <h3 className={`text-2xl md:text-3xl font-black uppercase tracking-tight mb-3 ${isSelected ? 'text-white' : 'text-slate-900'}`}>
+                  {cat.label}
+                </h3>
+                <p className={`text-sm font-medium leading-relaxed mb-8 ${isSelected ? 'text-blue-50' : 'text-slate-500'}`}>
+                  {cat.subServices.slice(0, 3).join(', ')} & more specialized services.
+                </p>
+
+                <div className={`flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] ${isSelected ? 'text-white' : 'text-blue-600'}`}>
+                  Configure Services <ArrowRight size={16} />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </motion.div>
+      <AnimatePresence>
+        {toast && (
+          <Toast toast={toast} onClose={() => setToast(null)} />
+        )}
+      </AnimatePresence>
+    </div>
     );
   }
 
-  if (step === 'legal') {
+  if (step === 'setup') {
     return (
-      <div className="h-full w-full overflow-y-auto bg-card-bg/50">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="p-8 lg:p-12 max-w-4xl mx-auto">
-          <header className="mb-12 text-left">
-             <div className="flex items-center gap-4 mb-4">
-               <button 
-                onClick={() => setStep(profile.tier === 'Basic' ? 'setup' : 'questions')} 
-                className="text-text-light hover:text-text-main transition-colors"
-               >
-                  <ChevronLeft size={24} />
-               </button>
-               <span className="px-3 py-1 bg-primary-blue/10 text-primary-blue text-[10px] font-black uppercase tracking-widest rounded-full">
-                  {profile.tier === 'Basic' ? 'Part 2 of 2' : 'Part 3 of 3'}
-               </span>
-            </div>
-            <h2 className="text-4xl font-black text-text-main uppercase tracking-tighter leading-none mb-2 text-left">Liability & Service Agreement</h2>
-            <p className="text-text-light text-sm font-medium text-left">Please review our professional indemnity terms and operational liabilities.</p>
-          </header>
+      <div className="h-full w-full overflow-y-auto bg-slate-50/50">
+      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="p-6 md:p-10 lg:p-16 max-w-6xl mx-auto">
+        <header className="mb-12 flex items-center justify-between">
+          <button 
+            onClick={() => setStep('category')}
+            className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors"
+          >
+            <ChevronLeft size={16} /> Back
+          </button>
+          <div className="text-right">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-2">
+              Service Roster
+            </h2>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Configure your {profile.category} catalog</p>
+          </div>
+        </header>
 
-          <div className="bg-sidebar border border-border-slate rounded-[48px] p-10 space-y-10 shadow-2xl">
-             <div className="bg-card-bg p-8 rounded-[32px] border border-border-slate/10 overflow-y-auto max-h-[300px] text-xs text-text-light leading-loose space-y-6 font-medium scrollbar-hide text-left">
-                <h5 className="text-sm font-black text-text-main uppercase tracking-widest">Section 1: Professional Liability</h5>
-                <p>1.1 The Service Provider acknowledgment...</p>
-                {/* ... legal text truncated for brevity in this mock ... */}
-             </div>
+        <StepIndicator />
 
-             <div className="flex flex-col gap-8">
-                <div className="flex items-start gap-4 p-6 bg-primary-blue/5 rounded-3xl border border-primary-blue/20">
-                   <button 
-                    onClick={() => setHasAcceptedLegal(!hasAcceptedLegal)}
-                    className={`w-8 h-8 rounded-xl border flex items-center justify-center shrink-0 transition-all ${hasAcceptedLegal ? 'bg-primary-blue border-primary-blue text-white' : 'bg-sidebar border-border-slate'}`}
-                   >
-                     {hasAcceptedLegal && <Check size={18} />}
-                   </button>
-                   <div className="text-left">
-                      <p className="text-[11px] font-black text-text-main uppercase tracking-tight mb-1">Acceptance of Terms</p>
-                      <p className="text-[10px] text-text-light leading-relaxed">I have read, understood, and accept the liability coverage terms and the Professional Service Charter.</p>
-                   </div>
+        {/* Tier Grid */}
+        <div className="space-y-16">
+          {(['Luxury', 'Premium', 'Basic'] as TierLevel[]).map((tier) => {
+            const services = TIER_SERVICES_MATRIX[profile.category][tier];
+            const pkg = CATALOG_PACKAGES.find(p => p.tier === tier);
+            const tierSelections = profile.services.filter(s => services.includes(s));
+            
+            return (
+              <section key={tier}>
+                <div className="flex items-center gap-6 mb-8">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg ${
+                    tier === 'Luxury' ? 'bg-amber-400' : tier === 'Premium' ? 'bg-blue-600' : 'bg-slate-400'
+                  }`}>
+                    {tier === 'Luxury' ? <Gem size={24} /> : tier === 'Premium' ? <Zap size={24} /> : <ShieldCheck size={24} />}
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">{tier} Tier</h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Platform Fee: {pkg?.fee}% • {3 - tierSelections.length} Slots Available</p>
+                  </div>
                 </div>
 
-                <button 
-                  disabled={!hasAcceptedLegal || isFinalizing}
-                  onClick={completeSigning}
-                  className="w-full py-6 bg-text-main text-sidebar disabled:opacity-30 disabled:grayscale rounded-[32px] font-black text-[11px] uppercase tracking-[0.4em] shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4"
-                >
-                  {isFinalizing ? (
-                    <RefreshCcw className="animate-spin" size={20} />
-                  ) : (
-                    <>Finalize Enrollment & Sign <ArrowRight size={20}/></>
-                  )}
-                </button>
-             </div>
-          </div>
-        </motion.div>
-        <Toast toast={toast} onClose={() => setToast(null)} />
-      </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {services.map(service => {
+                    const isSelected = profile.services.includes(service);
+                    return (
+                      <button
+                        key={service}
+                        onClick={() => toggleService(service, tier)}
+                        className={`p-8 rounded-[32px] border-2 text-left transition-all duration-300 flex items-center justify-between group ${
+                          isSelected 
+                            ? 'bg-white border-blue-600 shadow-xl shadow-blue-500/10' 
+                            : 'bg-white border-slate-100 hover:border-slate-300'
+                        }`}
+                      >
+                        <div>
+                          <p className={`text-sm font-black uppercase tracking-widest mb-1 ${isSelected ? 'text-blue-600' : 'text-slate-900'}`}>{service}</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">SPECIALIZED SERVICE</p>
+                        </div>
+                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                          isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-100 group-hover:border-slate-300'
+                        }`}>
+                          {isSelected && <Check size={16} strokeWidth={4} />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+
+        <div className="mt-20 flex justify-center">
+          <button
+            onClick={handleFinalize}
+            disabled={profile.services.length === 0}
+            className={`px-16 py-6 rounded-[28px] text-sm font-black uppercase tracking-[0.2em] shadow-2xl transition-all ${
+              profile.services.length > 0 
+                ? 'bg-blue-600 text-white shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98]' 
+                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+            }`}
+          >
+            Deploy Roster
+          </button>
+        </div>
+      </motion.div>
+      <AnimatePresence>
+        {toast && (
+          <Toast toast={toast} onClose={() => setToast(null)} />
+        )}
+      </AnimatePresence>
+    </div>
+    );
+  }
+
+  if (step === 'questions') {
+    return (
+      <div className="h-full w-full overflow-y-auto bg-slate-50/50">
+      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="p-6 md:p-10 lg:p-16 max-w-4xl mx-auto">
+        <header className="mb-12 text-center">
+          <h2 className="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-6">
+            Verification Protocol
+          </h2>
+          <p className="text-slate-500 text-sm md:text-base font-medium max-w-xl mx-auto leading-relaxed">
+            Tier-based activation requires professional attestation. Please verify your compliance with {profile.tier} specialized standards.
+          </p>
+        </header>
+
+        <StepIndicator />
+
+        <div className="space-y-6">
+          {QUALIFICATION_QUESTIONS[profile.category].map((q, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                const newAnswers = [...answers];
+                newAnswers[i] = !newAnswers[i];
+                setAnswers(newAnswers);
+              }}
+              className={`w-full p-8 rounded-[32px] border-2 text-left transition-all duration-300 flex items-center justify-between group ${
+                answers[i] 
+                  ? 'bg-white border-blue-600 shadow-xl shadow-blue-500/10' 
+                  : 'bg-white border-slate-100 hover:border-slate-300'
+              }`}
+            >
+              <p className={`text-sm md:text-base font-black uppercase tracking-tight leading-relaxed pr-8 ${answers[i] ? 'text-blue-600' : 'text-slate-900'}`}>
+                {q}
+              </p>
+              <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                answers[i] ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-100 group-hover:border-slate-300'
+              }`}>
+                {answers[i] && <Check size={16} strokeWidth={4} />}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-16 flex justify-center">
+          <button
+            onClick={submitAnswers}
+            className="px-16 py-6 bg-blue-600 text-white rounded-[28px] text-sm font-black uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            Authorize Tier Activation
+          </button>
+        </div>
+      </motion.div>
+      <AnimatePresence>
+        {toast && (
+          <Toast toast={toast} onClose={() => setToast(null)} />
+        )}
+      </AnimatePresence>
+    </div>
     );
   }
 
   return (
-    <div className="h-full w-full overflow-y-auto bg-card-bg/50">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-5 md:p-8 lg:p-12">
-        <header className="mb-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="text-left">
-            <h2 className="text-4xl font-black text-text-main uppercase tracking-tighter leading-none mb-2">
-              Catalog Configuration
-            </h2>
-            <p className="text-text-light text-sm font-medium">
-              Tick the specific services you are professionally qualified to offer.
-            </p>
+    <div className="h-full w-full overflow-y-auto bg-slate-50/50">
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="p-6 md:p-10 lg:p-16 max-w-4xl mx-auto">
+      <header className="mb-12 text-center">
+        <h2 className="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-6">
+          Legal Activation
+        </h2>
+        <p className="text-slate-500 text-sm md:text-base font-medium max-w-xl mx-auto leading-relaxed">
+          Finalize your specialized terminal deployment by accepting the SkillGrid Service Protocol and specialized tier requirements.
+        </p>
+      </header>
+
+      <StepIndicator />
+
+      <div className="bg-white border border-slate-100 rounded-[40px] p-10 md:p-14 shadow-xl shadow-slate-200/40">
+        <div className="space-y-10 max-h-[400px] overflow-y-auto custom-scrollbar pr-6 mb-12">
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-900">1. Operational Protocol</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">Specialists must maintain optimal synchronization with the service grid. Failure to respond to prioritized requests within the specified window may result in node degradation.</p>
           </div>
-          {profile.services.length > 0 && (
-             <button 
-              onClick={handleFinalize}
-              className="w-full md:w-auto px-8 py-4 bg-primary-blue text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3"
-             >
-                Continue to Assessment <ArrowRight size={16} />
-             </button>
-          )}
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-           {(['Basic', 'Premium', 'Luxury'] as TierLevel[]).map(tier => (
-              <div key={tier} className="p-8 bg-sidebar/30 border border-border-slate rounded-[40px] text-left">
-                 <div className="flex items-center gap-3 mb-6">
-                    <div className="p-3 bg-card-bg border border-border-slate rounded-2xl text-text-light shrink-0">
-                       {tier === 'Basic' ? <Home size={20} /> : tier === 'Premium' ? <ShieldCheck size={20} /> : <Gem size={20} />}
-                    </div>
-                    <div>
-                       <h3 className="text-xl font-black text-text-main uppercase tracking-tight">{tier} Tier</h3>
-                       <p className="text-[10px] font-black text-primary-blue uppercase tracking-widest">Max 3 selections</p>
-                    </div>
-                 </div>
-
-                 <div className="space-y-3">
-                    {TIER_SERVICES_MATRIX[profile.category][tier].map(service => (
-                       <button
-                        key={service}
-                        onClick={() => toggleService(service, tier)}
-                        className={`w-full p-5 rounded-[24px] border text-left transition-all ${
-                          profile.services.includes(service) 
-                            ? 'bg-primary-blue/5 border-primary-blue text-text-main' 
-                            : 'bg-sidebar border-border-slate/10 text-text-light hover:border-border-slate'
-                        }`}
-                       >
-                          <div className="flex items-center justify-between gap-3">
-                             <span className="text-[11px] font-bold uppercase tracking-tight">{service}</span>
-                             {profile.services.includes(service) && <Check size={14} className="text-primary-blue" />}
-                          </div>
-                       </button>
-                    ))}
-                 </div>
-              </div>
-           ))}
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-900">2. Financial Settlement</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">SkillGrid facilitates secure transactions between nodes. Service fees are automatically calculated based on tier level and credited upon verified task completion.</p>
+          </div>
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-900">3. Specialized Standards</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">{profile.tier} tier specialists are bound by advanced professional requirements and must maintain their verified credentials to access priority matching.</p>
+          </div>
         </div>
-      </motion.div>
-      <Toast toast={toast} onClose={() => setToast(null)} />
-    </div>
+
+        <button
+          onClick={() => setHasAcceptedLegal(!hasAcceptedLegal)}
+          className="flex items-center gap-6 group mb-12"
+        >
+          <div className={`w-10 h-10 rounded-2xl border-2 flex items-center justify-center transition-all ${
+            hasAcceptedLegal ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-100 group-hover:border-slate-300'
+          }`}>
+            {hasAcceptedLegal && <Check size={18} strokeWidth={4} />}
+          </div>
+          <p className="text-xs font-black uppercase tracking-widest text-slate-600 group-hover:text-slate-900">
+            I accept the SkillGrid specialized service protocol
+          </p>
+        </button>
+
+        <button
+          onClick={completeSigning}
+          disabled={!hasAcceptedLegal || isFinalizing}
+          className={`w-full py-6 rounded-[28px] text-sm font-black uppercase tracking-[0.2em] shadow-2xl transition-all flex items-center justify-center gap-4 ${
+            hasAcceptedLegal && !isFinalizing
+              ? 'bg-blue-600 text-white shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98]' 
+              : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+          }`}
+        >
+          {isFinalizing ? (
+            <>
+              <RefreshCcw size={18} className="animate-spin" />
+              Initializing Node...
+            </>
+          ) : (
+            <>
+              <Zap size={18} fill="currentColor" />
+              Activate Specialized Terminal
+            </>
+          )}
+        </button>
+      </div>
+    </motion.div>
+    <AnimatePresence>
+      {toast && (
+        <Toast toast={toast} onClose={() => setToast(null)} />
+      )}
+    </AnimatePresence>
+  </div>
   );
 };

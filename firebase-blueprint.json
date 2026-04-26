@@ -139,12 +139,30 @@
         "date": { "type": "string" }
       },
       "required": ["providerId", "date"]
+    },
+    "Category": {
+      "title": "Service Category",
+      "description": "A domain of expertise within the SkillGrid ecosystem.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "icon": { "type": "string", "description": "Lucide icon name" },
+        "color": { "type": "string", "description": "Tailwind color class" },
+        "description": { "type": "string" },
+        "activeCount": { "type": "number" }
+      },
+      "required": ["id", "label", "icon", "color"]
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": "User",
       "description": "User profiles"
+    },
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Service categories"
     },
     "/bookings/{bookingId}": {
       "schema": "Booking",

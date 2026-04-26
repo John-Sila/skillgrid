@@ -1,6 +1,6 @@
 import React from 'react';
 import { Mail, RefreshCcw, LogOut } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 interface VerifyEmailViewProps {
   email: string;

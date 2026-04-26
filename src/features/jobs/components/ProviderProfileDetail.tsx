@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChevronLeft, 
   Star, 
@@ -12,6 +12,7 @@ import {
 import { Provider, Booking } from '../../../shared/types';
 import { ReputationBar } from '../../../shared/components/ReputationBar';
 import { BookingModal } from '../../../shared/components/BookingModal';
+import { Toast } from '../../../shared/components/Toast';
 
 interface ProviderProfileDetailProps {
   provider: Provider;
@@ -20,6 +21,7 @@ interface ProviderProfileDetailProps {
   onAddBooking: (b: Booking) => void;
   onRecommend: () => void;
   setActiveTab: (t: string) => void;
+  setToast: (t: { message: string } | null) => void;
 }
 
 export const ProviderProfileDetail: React.FC<ProviderProfileDetailProps> = ({ 
@@ -27,16 +29,24 @@ export const ProviderProfileDetail: React.FC<ProviderProfileDetailProps> = ({
   onClose, 
   onAddBooking, 
   onRecommend, 
-  setActiveTab 
+  setActiveTab,
+  setToast
 }) => {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [recommended, setRecommended] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   const handleRecommend = () => {
     if (!recommended) {
       setRecommended(true);
       onRecommend();
+      setToast({ message: `Recommendation for ${provider.name} broadcasted to your network!` });
     }
+  };
+
+  const handleSave = () => {
+    setIsSaved(!isSaved);
+    setToast({ message: isSaved ? `${provider.name} removed from your saved specialists.` : `${provider.name} added to your saved specialists!` });
   };
 
   return (
@@ -203,8 +213,11 @@ export const ProviderProfileDetail: React.FC<ProviderProfileDetailProps> = ({
                <Users size={24} />
                <span className="text-[7px] font-black uppercase tracking-widest mt-1">{recommended ? 'Referred' : 'Refer'}</span>
             </button>
-            <button className="w-20 py-6 border border-border-slate rounded-[32px] flex items-center justify-center text-text-light hover:text-text-main transition-all">
-               <Heart size={24} />
+            <button 
+              onClick={handleSave}
+              className={`w-20 py-6 border rounded-[32px] flex items-center justify-center transition-all ${isSaved ? 'bg-red-500/10 border-red-500 text-red-500' : 'border-border-slate text-text-light hover:text-text-main'}`}
+            >
+               <Heart size={24} className={isSaved ? 'fill-red-500' : ''} />
             </button>
          </div>
       </div>

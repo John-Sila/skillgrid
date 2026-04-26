@@ -1,7 +1,7 @@
 export type Category = 'Household' | 'Maintenance' | 'Logistics' | 'Outdoor' | 'Lifestyle' | 'Staff';
-export type TierLevel = 'Basic' | 'Premium' | 'Luxury';
+export type TierLevel = 'Basic' | 'Premium' | 'Luxury' | 'Other' | 'Other Services';
 export type UserRole = 'client' | 'provider';
-export type SortOption = 'none' | 'rating' | 'price' | 'distance';
+export type SortOption = 'none' | 'rating' | 'price' | 'distance' | 'age' | 'popularity' | 'Top Rated' | 'Newest' | 'Lowest Price' | 'Recommended';
 
 export interface Testimonial {
   writer: string;

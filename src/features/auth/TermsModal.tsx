@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, ShieldCheck } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface TermsModalProps {
   isOpen: boolean;

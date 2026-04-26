@@ -4,6 +4,7 @@ import { jobService } from './jobService';
 import { auth } from '../../firebase/config';
 import { Booking } from '../../shared/types';
 import { Toast } from '../../shared/components/Toast';
+import { AnimatePresence } from 'framer-motion';
 
 export const JobsPage: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -20,10 +21,14 @@ export const JobsPage: React.FC = () => {
         bookings={bookings}
         setToast={setToast}
       />
-      <Toast 
-        toast={toast} 
-        onClose={() => setToast(null)} 
-      />
+      <AnimatePresence>
+        {toast && (
+          <Toast 
+            toast={toast} 
+            onClose={() => setToast(null)} 
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 };

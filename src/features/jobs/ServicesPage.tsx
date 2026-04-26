@@ -4,20 +4,18 @@ import { Category, TierLevel, SortOption, Booking, Provider } from '../../shared
 import { jobService } from './jobService';
 import { auth } from '../../firebase/config';
 import { Toast } from '../../shared/components/Toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 
 export const ServicesPage: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [filterTier, setFilterTier] = useState<TierLevel | 'All'>('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<SortOption>('none');
   const [toast, setToast] = useState<{ message: string, bookingId?: string } | null>(null);
   const navigate = useNavigate();
+  const { tier } = useParams<{ tier?: string }>();
 
   const handleAddBooking = async (booking: Booking) => {
     try {
       await jobService.createBooking(booking);
-      setToast({ message: `${booking.category} booking confirmed successfully!`, bookingId: booking.id });
+      setToast({ message: `Booking confirmed successfully!`, bookingId: booking.id });
       setTimeout(() => setToast(null), 6000);
     } catch (error) {
       console.error(error);
@@ -26,32 +24,27 @@ export const ServicesPage: React.FC = () => {
   };
 
   const handleViewProfile = (provider: Provider) => {
-    // Navigate to profile or show modal
-    console.log('Viewing profile:', provider);
+    navigate(`/provider/${provider.id}`);
   };
 
   return (
     <>
       <ServicesView 
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        filterTier={filterTier}
-        setFilterTier={setFilterTier}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
         onAddBooking={handleAddBooking}
         onViewProfile={handleViewProfile}
-        setActiveTab={(tab) => navigate(`/${tab}`)}
-        userInterests={[]} // Should come from user profile
+        setToast={setToast}
+        initialTier={tier as any}
       />
-      <Toast 
-        toast={toast} 
-        onClose={() => setToast(null)} 
-        onAction={() => navigate('/waitlist')}
-        actionLabel="Track in Waitlist"
-      />
+      <AnimatePresence>
+        {toast && (
+          <Toast 
+            toast={toast} 
+            onClose={() => setToast(null)} 
+            onAction={() => navigate('/waitlist')}
+            actionLabel="Track in Waitlist"
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 };

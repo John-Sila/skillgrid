@@ -1,5 +1,5 @@
 import { collection, doc, serverTimestamp, writeBatch } from "firebase/firestore";
-import { db } from "../firebase-config";
+import { db } from "../firebase/config";
 import { type Booking } from "../shared/types";
 
 export const invoiceService = {

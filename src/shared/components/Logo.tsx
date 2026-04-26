@@ -6,18 +6,52 @@ interface LogoProps {
   showText?: boolean;
 }
 
-export const Logo: React.FC<LogoProps> = ({ className = "", showText = true }) => {
+export const Logo: React.FC<LogoProps> = ({
+  className = "",
+  showText = true
+}) => {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <div className="w-10 h-10 bg-primary-blue rounded-xl flex items-center justify-center shadow-xl shadow-blue-500/20 rotate-3">
-        <Sparkles size={20} className="text-white fill-white/20" />
+    <div className={`flex items-center gap-3 ${className}`}>
+
+      {/* ICON */}
+      <div className="
+        relative w-10 h-10 rounded-2xl 
+        bg-gradient-to-br from-blue-500 to-purple-600 
+        flex items-center justify-center
+        shadow-lg shadow-blue-500/20
+        transition-all duration-300
+        hover:scale-105
+      ">
+        {/* subtle glow */}
+        <div className="absolute inset-0 rounded-2xl bg-white/10 blur-[6px]" />
+
+        <Sparkles size={18} className="relative text-white" />
       </div>
+
+      {/* TEXT */}
       {showText && (
-        <div className="flex flex-col text-left">
-          <h1 className="text-lg font-black text-text-main uppercase tracking-tighter italic leading-none">SkillGrid</h1>
-          <span className="text-[8px] font-black text-primary-blue uppercase tracking-[0.4em] mt-0.5 ml-0.5">Elite Matrix</span>
+        <div className="flex flex-col leading-none">
+
+          {/* Main Brand */}
+          <span className="
+            text-base font-semibold tracking-tight
+            bg-gradient-to-r from-blue-500 via-purple-600 to-white
+            bg-clip-text text-transparent
+          ">
+            SkillGrid
+          </span>
+
+          {/* Sub Label */}
+          <span className="
+            text-[9px] font-medium tracking-[0.25em]
+            text-blue-400/80 uppercase mt-[2px]
+          ">
+            Elite Matrix
+          </span>
+
         </div>
       )}
+
     </div>
   );
 };

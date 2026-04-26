@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 interface ReputationBarProps {
   rating: number;
@@ -17,7 +17,7 @@ export const ReputationBar: React.FC<ReputationBarProps> = ({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-[8px] font-black uppercase tracking-[0.2em]">
-        <span className="text-text-light">{label}</span>
+        <span className="text-slate-500 dark:text-slate-400">{label}</span>
         <span className={`${reliability >= 90 ? 'text-accent-green' : reliability >= 70 ? 'text-yellow-500' : 'text-red-500'}`}>
           {reliability}% Reliable
         </span>

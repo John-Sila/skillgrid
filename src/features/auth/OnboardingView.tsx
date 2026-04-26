@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Shield, 
   Camera, 
@@ -89,18 +89,18 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
   return (
     <div className="w-full h-full md:h-auto max-w-2xl bg-sidebar md:shadow-2xl md:rounded-[40px] border border-border-slate flex flex-col overflow-hidden relative group font-sans">
       <div className="relative z-10 flex flex-col h-full">
-        <header className="p-8 md:p-12 pb-4 md:pb-6 shrink-0 border-b md:border-none border-border-slate/10 bg-sidebar/50 backdrop-blur-md">
+        <header className="p-8 md:p-12 pb-4 md:pb-6 shrink-0 border-b md:border-none border-slate-100 dark:border-slate-800 bg-sidebar/50 backdrop-blur-md">
            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl md:text-3xl font-black text-text-main uppercase italic tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-slate-100 uppercase italic tracking-tight">
                 {role === 'provider' ? 'Specialist Induction' : 'Identity Protocol'}
               </h2>
               <div className="flex gap-1">
                  {[...Array(totalSteps)].map((_, i) => (
-                   <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i <= step ? 'w-8 bg-primary-blue' : 'w-4 bg-border-slate'}`} />
+                   <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i <= step ? 'w-8 bg-primary-blue' : 'w-4 bg-slate-200 dark:bg-slate-700'}`} />
                  ))}
               </div>
            </div>
-           <p className="text-[10px] text-text-light font-bold uppercase tracking-widest opacity-60">
+           <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest opacity-60">
              {step === 0 ? 'Initialization' : `Phase 0${step}: ${
                step === 1 ? 'Bio-Metric Data' : step === 2 ? 'Domain Calibration' : 'Verification Sequence'
              }`}
@@ -118,8 +118,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
                   <Shield size={48} />
                </div>
                <div className="space-y-4">
-                  <h3 className="text-2xl font-black text-text-main uppercase tracking-tight">Elite Onboarding Protocol</h3>
-                  <p className="text-xs text-text-light font-medium leading-relaxed max-w-xs mx-auto">
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">Elite Onboarding Protocol</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed max-w-xs mx-auto">
                     Welcome to the infrastructure. We require detailed telemetry to establish your clearance level.
                   </p>
                </div>
@@ -139,11 +139,11 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
             >
                <div className="flex flex-col items-center">
                   <div className="relative group cursor-pointer" onClick={() => document.getElementById('photo-upload')?.click()}>
-                    <div className="w-28 h-28 rounded-[36px] bg-sidebar border-2 border-dashed border-border-slate flex items-center justify-center overflow-hidden transition-all group-hover:border-primary-blue">
+                    <div className="w-28 h-28 rounded-[36px] bg-slate-50 dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden transition-all group-hover:border-primary-blue">
                        {formData.image ? (
                          <img src={formData.image} className="w-full h-full object-cover" alt="Profile" />
                        ) : (
-                         <Camera size={40} className="text-text-light group-hover:text-primary-blue" />
+                         <Camera size={40} className="text-slate-400 group-hover:text-primary-blue" />
                        )}
                     </div>
                     <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary-blue rounded-2xl flex items-center justify-center text-white border-4 border-sidebar shadow-lg">
@@ -158,38 +158,38 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
                         }
                     }} />
                   </div>
-                  <p className="text-[9px] font-black text-text-light uppercase tracking-widest mt-4">Optical Data Acquisition</p>
+                  <p className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-4">Optical Data Acquisition</p>
                </div>
 
                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[9px] font-black text-text-light uppercase ml-2">Identity Name</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase ml-2">Identity Name</label>
                     <input 
                       type="text" 
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="w-full px-6 py-4 bg-sidebar/30 border border-border-slate rounded-2xl text-xs focus:border-primary-blue outline-none" 
+                      className="w-full px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs focus:border-primary-blue outline-none text-slate-900 dark:text-slate-100" 
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[9px] font-black text-text-light uppercase ml-2">Temporal Origin (DOB)</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase ml-2">Temporal Origin (DOB)</label>
                     <input 
                       type="date" 
                       value={formData.dob}
                       onChange={(e) => setFormData({...formData, dob: e.target.value})}
-                      className="w-full px-6 py-4 bg-sidebar/30 border border-border-slate rounded-2xl text-xs focus:border-primary-blue outline-none" 
+                      className="w-full px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs focus:border-primary-blue outline-none text-slate-900 dark:text-slate-100" 
                     />
                   </div>
                </div>
 
                <div className="space-y-2">
-                  <label className="text-[9px] font-black text-text-light uppercase ml-2">Gender Class</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase ml-2">Gender Class</label>
                   <div className="flex gap-2">
                      {['Male', 'Female', 'Non-Binary'].map(g => (
                        <button 
                          key={g} 
                          onClick={() => setFormData({...formData, gender: g})}
-                         className={`flex-1 py-4 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.gender === g ? 'bg-primary-blue text-white border-primary-blue' : 'border-border-slate text-text-light hover:border-primary-blue'}`}
+                         className={`flex-1 py-4 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.gender === g ? 'bg-primary-blue text-white border-primary-blue' : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-primary-blue'}`}
                        >
                          {g}
                        </button>
@@ -208,11 +208,11 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
                  <div className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                        <div className="space-y-2">
-                          <label className="text-[9px] font-black text-text-light uppercase ml-2">Primary Deployment Node</label>
+                          <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase ml-2">Primary Deployment Node</label>
                           <select 
                              value={specialistData.category}
                              onChange={(e) => setSpecialistData({...specialistData, category: e.target.value as Category, services: []})}
-                             className="w-full px-6 py-4 bg-sidebar/30 border border-border-slate rounded-2xl text-xs focus:border-primary-blue outline-none font-bold"
+                             className="w-full px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs focus:border-primary-blue outline-none font-bold text-slate-900 dark:text-slate-100"
                           >
                              {CATEGORIES.map(cat => (
                                <option key={cat.id} value={cat.id}>{cat.label}</option>
@@ -220,14 +220,14 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
                           </select>
                        </div>
                        <div className="space-y-2">
-                          <label className="text-[9px] font-black text-text-light uppercase ml-2">Clearance Tier</label>
+                          <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase ml-2">Clearance Tier</label>
                           <div className="flex gap-2">
                              {(['Basic', 'Premium', 'Luxury'] as TierLevel[]).map(t => (
                                <button 
                                   key={t}
                                   onClick={() => setSpecialistData({...specialistData, tier: t})}
                                   className={`flex-1 py-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                                    specialistData.tier === t ? 'bg-primary-blue text-white border-primary-blue' : 'border-border-slate text-text-light hover:border-text-main'
+                                    specialistData.tier === t ? 'bg-primary-blue text-white border-primary-blue' : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-900 dark:hover:border-slate-100'
                                   }`}
                                >
                                   {t}
@@ -238,7 +238,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
                     </div>
 
                     <div className="space-y-3">
-                       <label className="text-[9px] font-black text-text-light uppercase ml-2">Specialized Unit Capability (Max 3)</label>
+                       <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase ml-2">Specialized Unit Capability (Max 3)</label>
                        <div className="grid grid-cols-2 gap-2">
                           {TIER_SERVICES_MATRIX[specialistData.category][specialistData.tier].map(service => {
                             const isSelected = specialistData.services.includes(service);
@@ -256,7 +256,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
                                    });
                                 }}
                                 className={`p-4 rounded-2xl border text-[9px] font-bold text-left transition-all ${
-                                  isSelected ? 'bg-primary-blue/10 border-primary-blue text-primary-blue' : 'border-border-slate text-text-light hover:border-text-main'
+                                  isSelected ? 'bg-primary-blue/10 border-primary-blue text-primary-blue' : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-900 dark:hover:border-slate-100'
                                 }`}
                              >
                                 {service}
@@ -267,18 +267,18 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[9px] font-black text-text-light uppercase ml-2">Target Rate (KSH / Hour)</label>
+                      <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase ml-2">Target Rate (KSH / Hour)</label>
                       <input 
                         type="number" 
                         value={specialistData.pricePerHour}
                         onChange={(e) => setSpecialistData({...specialistData, pricePerHour: parseInt(e.target.value) || 0})}
-                        className="w-full px-6 py-4 bg-sidebar/30 border border-border-slate rounded-2xl text-xs font-bold focus:border-primary-blue outline-none" 
+                        className="w-full px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold focus:border-primary-blue outline-none text-slate-900 dark:text-slate-100" 
                       />
                     </div>
                  </div>
                ) : (
                  <div className="space-y-6">
-                    <label className="text-[9px] font-black text-text-light uppercase ml-2">Core Interest Mapping</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase ml-2">Core Interest Mapping</label>
                     <div className="grid grid-cols-2 gap-3">
                        {interestOptions.map(opt => {
                          const isSelected = formData.interests.includes(opt);
@@ -289,7 +289,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
                                ...formData,
                                interests: isSelected ? formData.interests.filter(i => i !== opt) : [...formData.interests, opt]
                              })}
-                             className={`p-5 rounded-2xl border text-[10px] font-black uppercase text-left transition-all ${isSelected ? 'bg-primary-blue/10 border-primary-blue text-primary-blue' : 'border-border-slate text-text-light hover:border-text-main'}`}
+                             className={`p-5 rounded-2xl border text-[10px] font-black uppercase text-left transition-all ${isSelected ? 'bg-primary-blue/10 border-primary-blue text-primary-blue' : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-900 dark:hover:border-slate-100'}`}
                            >
                              {opt}
                            </button>
@@ -308,25 +308,25 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
             >
                <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-[9px] font-black text-text-light uppercase ml-2">Deployment Bio</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase ml-2">Deployment Bio</label>
                     <textarea 
                       rows={5}
                       placeholder="Define your mission profile..."
                       value={formData.bio}
                       onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                      className="w-full px-6 py-6 bg-sidebar/30 border border-border-slate rounded-3xl text-sm focus:border-primary-blue outline-none resize-none" 
+                      className="w-full px-6 py-6 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-3xl text-sm focus:border-primary-blue outline-none resize-none text-slate-900 dark:text-slate-100" 
                     />
                   </div>
                </div>
 
                <div className="space-y-2">
-                  <label className="text-[9px] font-black text-text-light uppercase ml-2">Secure Routing Address</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase ml-2">Secure Routing Address</label>
                   <input 
                     type="text" 
                     placeholder="Physical deployment coordinates (Area, Street)..."
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
-                    className="w-full px-6 py-4 bg-sidebar/30 border border-border-slate rounded-2xl text-xs focus:border-primary-blue outline-none" 
+                    className="w-full px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs focus:border-primary-blue outline-none text-slate-900 dark:text-slate-100" 
                   />
                </div>
 
@@ -336,7 +336,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
                   </div>
                   <div>
                     <p className="text-[10px] font-black text-accent-green uppercase tracking-widest">Protocol Check</p>
-                    <p className="text-[10px] text-text-light font-medium italic mt-0.5">Profile integrity verified for initialization.</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium italic mt-0.5">Profile integrity verified for initialization.</p>
                   </div>
                </div>
             </motion.div>
@@ -348,7 +348,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ user, onComplete
            {step > 0 ? (
              <button 
                onClick={handleBack}
-               className="px-6 py-4 text-[10px] font-black text-text-light uppercase tracking-widest hover:text-text-main transition-colors"
+               className="px-6 py-4 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
              >
                Recede
              </button>
