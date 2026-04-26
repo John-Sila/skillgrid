@@ -392,7 +392,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, onSignup, mode, set
                     }
                   } catch (err: any) {
                     console.error(err);
-                    setAuthError("Google synchronization failed.");
+                    setAuthError(err.message || "Google synchronization failed.");
                   } finally {
                     setLoading(false);
                   }
